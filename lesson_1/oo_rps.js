@@ -29,14 +29,14 @@ const RPSGame = {
   computer: createComputer(),
 
   displayWelcomeMessage() {
-    console.log('Welcome to Rock, Paper, Scissors!');
+    console.log('Welcome to Rock, Paper, Scissors!\n');
   },
 
   displayGoodbyeMessage() {
     console.log('Thanks for playing Rock, Paper, Scissors. Goodbye!');
   },
 
-  displayWinner() {
+  displayRoundWinner() {
     let humanMove = this.human.move;
     let computerMove = this.computer.move;
 
@@ -58,11 +58,12 @@ const RPSGame = {
   },
 
   play() {
+    console.clear();
     this.displayWelcomeMessage();
     while (true) {
       this.human.choose();
       this.computer.choose();
-      this.displayWinner();
+      this.displayRoundWinner();
       if (!this.playAgain()) break;
     }
 
@@ -102,7 +103,7 @@ function createHuman() {
       let choice;
 
       while (true) {
-        console.log('\nPlease choose rock, paper, or scissors:');
+        console.log('Please choose rock, paper, or scissors:');
         choice = readline.prompt();
         if (['rock', 'paper', 'scissors'].includes(choice)) break;
         console.clear();
