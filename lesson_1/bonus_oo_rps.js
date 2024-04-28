@@ -1,18 +1,37 @@
 const readline = require('readline-sync');
 
 const RPS = {
-  nameOfGame: 'Rock, Paper, Scissors',
+  nameOfGame: 'Rock, Paper, Scissors, Lizard, Spock',
   game: createNewGame(),
   human: createHuman(),
   computer: createComputer(),
-  winningMoves: {
-    rock: 'scissors',
-    paper: 'rock',
-    scissors: 'paper',
-  },
-  choices: null,
-  invalidChoiceMsg: 'Sorry, invalid choice',
   roundsNeededToWin: 3,
+  invalidChoiceMsg: 'Sorry, invalid choice',
+
+  winningMoves: {
+    rock: ['scissors', 'lizard'],
+    paper: ['rock', 'spock'],
+    scissors: ['paper', 'lizard'],
+    lizard: ['paper', 'spock'],
+    spock: ['scissors', 'rock'],
+  },
+
+  winningMoveMessages: [
+    'Scissors cut paper',
+    'Paper covers rock',
+    'Rock crushes lizard',
+    'Lizard poisons Spock',
+    'Spock melts scissors',
+    'Scissors decapitate lizard',
+    'Lizard eats paper',
+    'Paper disproves Spock',
+    'Spock vaporizes rock',
+    'Rock breaks scissors',
+  ],
+
+
+  choices: null,
+
 
   playGame() {
     console.clear();
@@ -102,6 +121,9 @@ const RPS = {
     if (player.move === 'rock') choiceEmoji = '🪨';
     if (player.move === 'paper') choiceEmoji = '🧻';
     if (player.move === 'scissors') choiceEmoji = '✂️';
+    if (player.move === 'lizard') choiceEmoji = '🦎';
+    if (player.move === 'spock') choiceEmoji = '🖖';
+
 
     return choiceEmoji;
   },
@@ -112,8 +134,10 @@ const RPS = {
 
     if (this.winningMoves[humanMove].includes(computerMove)) {
       this.human.roundWins += 1;
+      this.displayWinningMove(humanMove, computerMove);
       console.log(`\n${this.human.name} win the round!`);
     } else if (this.winningMoves[computerMove].includes(humanMove)) {
+      this.displayWinningMove(humanMove, computerMove);
       console.log(`\n${this.computer.name} wins the round`);
       this.computer.roundWins += 1;
     } else {
@@ -127,6 +151,16 @@ const RPS = {
     console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
     console.log(`\nYou've won ${this.human.gameWins} game(s). ${this.computer.name} has won ${this.computer.gameWins} game(s)`);
   },
+
+  displayWinningMove(humanMove, computerMove) {
+    let message = this.winningMoveMessages.filter(msg => {
+      msg = msg.toLowerCase();
+      return msg.includes(humanMove.toLowerCase())
+      && msg.includes(computerMove.toLowerCase());
+    })[0];
+
+    console.log(`\n${message}`);
+  }
 };
 
 RPS.playGame();
@@ -163,11 +197,9 @@ function createHuman() {
       let choice;
 
       while (true) {
-        console.log('Please choose (r)ock, (p)aper, or (s)cissors:');
+        console.log('Please choose (r)ock, (p)aper, (sc)issors, (l)izard, or (sp)ock:');
         choice = readline.prompt().toLowerCase();
-        if (choice === 'r') choice = 'rock';
-        if (choice === 'p') choice = 'paper';
-        if (choice === 's') choice = 'scissors';
+        if (['r', 'p', 'sc', 'l', 'sp'].includes(choice)) choice = matchChoice(choice);
         if (RPS.choices.includes(choice)) break;
         console.clear();
         console.log('Sorry, invalid choice.');
@@ -193,4 +225,14 @@ function createComputer() {
   };
 
   return Object.assign(playerObject, computerObject);
+}
+
+
+function matchChoice(choice) {
+  if (choice === 'r') return 'rock';
+  if (choice === 'p') return 'paper';
+  if (choice === 'sc') return 'scissors';
+  if (choice === 'l') return 'lizard';
+  if (choice === 'sp') return 'spock';
+  return null;
 }
