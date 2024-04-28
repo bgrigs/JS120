@@ -1,33 +1,35 @@
 const readline = require('readline-sync');
 
 const RPS = {
+  nameOfGame: 'Rock, Paper, Scissors',
   game: createNewGame(),
   human: createHuman(),
   computer: createComputer(),
+  choices: ['rock', 'paper', 'scissors'],
   roundsNeededToWin: 3,
 
   displayScore() {
     console.log(`
 ***Score***
-    You: ${this.human.roundWins}
-    Computer: ${this.computer.roundWins} 
+    ${this.human.name}: ${this.human.roundWins}
+    ${this.computer.name}: ${this.computer.roundWins} 
     Ties: ${this.game.round.ties}\n`);
   },
 
   displayWelcomeMessage() {
-    console.log(`Welcome to Rock, Paper, Scissors!
+    console.log(`Welcome to ${this.nameOfGame}!
 \nThe game will end when a player wins ${this.roundsNeededToWin} rounds.\n`);
   },
 
   displayGoodbyeMessage() {
-    console.log('\nThanks for playing Rock, Paper, Scissors. Goodbye!');
+    console.log(`\nThanks for playing ${this.nameOfGame}. Goodbye!`);
   },
 
   displayRoundChoices() {
     console.clear();
-    console.log(`You chose: ${this.human.move} ${this.displayChoiceEmoji(this.human)}`);
+    console.log(`${this.human.name} chose: ${this.human.move} ${this.displayChoiceEmoji(this.human)}`);
     console.log(
-      `The computer chose: ${this.computer.move} ${this.displayChoiceEmoji(this.computer)}`);
+      `${this.computer.name} chose: ${this.computer.move} ${this.displayChoiceEmoji(this.computer)}`);
   },
 
   displayChoiceEmoji(player) {
@@ -47,11 +49,11 @@ const RPS = {
         (humanMove === 'scissors' && computerMove === 'paper') ||
         (humanMove === 'paper' && computerMove === 'rock')) {
       this.human.roundWins += 1;
-      console.log('\nYou win the round!');
+      console.log(`\n${this.human.name} win the round!`);
     } else if ((computerMove === 'rock' && humanMove === 'scissors') ||
                (computerMove === 'scissors' && humanMove === 'paper') ||
                (computerMove === 'paper' && humanMove === 'rock')) {
-      console.log('\nComputer wins the round');
+      console.log(`\n${this.computer.name} wins the round`);
       this.computer.roundWins += 1;
     } else {
       console.log("\nIt's a tie");
@@ -60,9 +62,9 @@ const RPS = {
   },
 
   displayGameWinner() {
-    let emoji = this.game.gameWinner === 'You' ? '🎉' : '😔';
+    let emoji = this.game.gameWinner === `${this.human.name}` ? '🎉' : '😔';
     console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
-    console.log(`\nYou've won ${this.human.gameWins} game(s). Computer has won ${this.computer.gameWins} game(s)`);
+    console.log(`\nYou've won ${this.human.gameWins} game(s). ${this.computer.name} has won ${this.computer.gameWins} game(s)`);
   },
 
   playRound() {
@@ -97,10 +99,10 @@ const RPS = {
 
   gameWon() {
     if (this.human.roundWins === this.roundsNeededToWin) {
-      this.game.gameWinner = 'You';
+      this.game.gameWinner = `${this.human.name}`;
       this.human.gameWins += 1;
     } else if (this.computer.roundWins === this.roundsNeededToWin) {
-      this.game.gameWinner = 'Computer';
+      this.game.gameWinner = `${this.computer.name}`;
       this.computer.gameWins += 1;
     }
     return this.game.gameWinner;
@@ -108,17 +110,18 @@ const RPS = {
 
   playAgain() {
     console.log('\nWould you like to play again? (y/n)');
+    const validAnswers = ['y', 'yes', 'n', 'no'];
+    const affirmativeAnswers = validAnswers.slice(0, 2);
 
     while (true) {
       let answer = readline.prompt().toLowerCase();
-      if (answer !== 'y' && answer !== 'yes'
-        && answer !== 'n' && answer !== 'no') {
+      if (!validAnswers.includes(answer)) {
         console.clear();
         console.log('Sorry, invalid choice. Enter y or n');
         continue;
       }
       console.clear();
-      return ['y', 'yes'].includes(answer.toLowerCase());
+      return affirmativeAnswers.includes(answer.toLowerCase());
     }
   }
 };
@@ -151,6 +154,8 @@ function createHuman() {
   let playerObject = createPlayer();
 
   let humanObject = {
+    name: 'You',
+
     choose() {
       let choice;
 
@@ -160,7 +165,7 @@ function createHuman() {
         if (choice === 'r') choice = 'rock';
         if (choice === 'p') choice = 'paper';
         if (choice === 's') choice = 'scissors';
-        if (['rock', 'paper', 'scissors'].includes(choice)) break;
+        if (RPS.choices.includes(choice)) break;
         console.clear();
         console.log('Sorry, invalid choice.');
       }
@@ -176,10 +181,11 @@ function createComputer() {
   let playerObject = createPlayer();
 
   let computerObject = {
+    name: 'Computer',
+
     choose() {
-      const choices = ['rock', 'paper', 'scissors'];
-      let randomIndex = Math.floor(Math.random() * choices.length);
-      this.move = choices[randomIndex];
+      let randomIndex = Math.floor(Math.random() * RPS.choices.length);
+      this.move = RPS.choices[randomIndex];
     },
   };
 
