@@ -40,7 +40,6 @@ const RPS = {
       this.playRound();
       this.displayScore();
       this.game.round.roundNumber += 1;
-      
     }
 
     this.displayGameWinner();
@@ -58,7 +57,7 @@ const RPS = {
     let roundNumber = this.game.round.roundNumber;
     console.log(`Press enter to start Round ${roundNumber}`);
     let ready = readline.prompt().trim();
-    console.clear()
+    console.clear();
 
     while (true) {
       if (ready === '') {
