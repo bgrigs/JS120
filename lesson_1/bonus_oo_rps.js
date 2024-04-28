@@ -29,9 +29,7 @@ const RPS = {
     'Rock breaks scissors',
   ],
 
-
   choices: null,
-
 
   playGame() {
     console.clear();
@@ -99,10 +97,10 @@ const RPS = {
 
   displayScore() {
     console.log(`
-***Score***
-    ${this.human.name}: ${this.human.roundWins}
-    ${this.computer.name}: ${this.computer.roundWins} 
-    Ties: ${this.game.round.ties}\n`);
+⭐ Score ⭐
+${this.human.name}: ${this.human.roundWins}
+${this.computer.name}: ${this.computer.roundWins} 
+Ties: ${this.game.round.ties}\n`);
   },
 
   displayGoodbyeMessage() {
@@ -119,11 +117,10 @@ const RPS = {
   displayChoiceEmoji(player) {
     let choiceEmoji;
     if (player.move === 'rock') choiceEmoji = '🪨';
-    if (player.move === 'paper') choiceEmoji = '🧻';
+    if (player.move === 'paper') choiceEmoji = '📰';
     if (player.move === 'scissors') choiceEmoji = '✂️';
     if (player.move === 'lizard') choiceEmoji = '🦎';
     if (player.move === 'spock') choiceEmoji = '🖖';
-
 
     return choiceEmoji;
   },
@@ -135,10 +132,10 @@ const RPS = {
     if (this.winningMoves[humanMove].includes(computerMove)) {
       this.human.roundWins += 1;
       this.displayWinningMove(humanMove, computerMove);
-      console.log(`\n${this.human.name} win the round!`);
+      console.log(`\n${this.human.name} win the round! 🙌`);
     } else if (this.winningMoves[computerMove].includes(humanMove)) {
       this.displayWinningMove(humanMove, computerMove);
-      console.log(`\n${this.computer.name} wins the round`);
+      console.log(`\n${this.computer.name} wins the round ⛔`);
       this.computer.roundWins += 1;
     } else {
       console.log("\nIt's a tie");
