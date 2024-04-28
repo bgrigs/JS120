@@ -1,46 +1,22 @@
-/*
-RPS is a two-player game where each player chooses one of three possible moves:
-rock, paper, or scissors.
-The winner is chosen by comparing their moves with the following rules:
-
-Rock crushes scissors, i.e., rock wins against scissors.
-Scissors cuts paper, i.e., scissors beats paper.
-Paper wraps rock, i.e., paper beats rock.
-If the players chose the same move, the game is a tie.
-
-Nouns: player, move, rule
-Verbs: choose, compare
-
-ignore the nouns "rock," "paper," and "scissors": each is a variation of a move.
-You can think of them as moves that each have a different state.
-
-Player
- - choose
-Move
-Rule
-
-???
-- compare
-*/
 const readline = require('readline-sync');
 
-const RPSGame = {
+const RPS = {
+  game: createNewGame(),
   human: createHuman(),
   computer: createComputer(),
-  round: createRound(),
   roundsNeededToWin: 3,
-  gameWinner: null,
 
   displayScore() {
     console.log(`
 ***Score***
-    You: ${this.human.wins}
-    Computer: ${this.computer.wins} 
-    Ties: ${this.round.ties}`);
+    You: ${this.human.roundWins}
+    Computer: ${this.computer.roundWins} 
+    Ties: ${this.game.round.ties}\n`);
   },
 
   displayWelcomeMessage() {
-    console.log('Welcome to Rock, Paper, Scissors!\n');
+    console.log(`Welcome to Rock, Paper, Scissors!
+\nThe game will end when a player wins ${this.roundsNeededToWin} rounds.\n`);
   },
 
   displayGoodbyeMessage() {
@@ -70,26 +46,27 @@ const RPSGame = {
     if ((humanMove === 'rock' && computerMove === 'scissors') ||
         (humanMove === 'scissors' && computerMove === 'paper') ||
         (humanMove === 'paper' && computerMove === 'rock')) {
-      this.human.wins += 1;
-      console.log('\nYou win!');
+      this.human.roundWins += 1;
+      console.log('\nYou win the round!');
     } else if ((computerMove === 'rock' && humanMove === 'scissors') ||
                (computerMove === 'scissors' && humanMove === 'paper') ||
                (computerMove === 'paper' && humanMove === 'rock')) {
-      console.log('\nComputer wins');
-      this.computer.wins += 1;
+      console.log('\nComputer wins the round');
+      this.computer.roundWins += 1;
     } else {
       console.log("\nIt's a tie");
-      this.round.ties += 1;
+      this.game.round.ties += 1;
     }
   },
 
   displayGameWinner() {
-    let emoji = this.gameWinner === 'You' ? '🎉' : '😔';
-    console.log(`\n${emoji.repeat(3)} ${this.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
+    let emoji = this.game.gameWinner === 'You' ? '🎉' : '😔';
+    console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
+    console.log(`\nYou've won ${this.human.gameWins} game(s). Computer has won ${this.computer.gameWins} game(s)`);
   },
 
   playRound() {
-    console.log(`\nThis is Round ${this.round.roundNumber}`);
+    console.log(`This is Round ${this.game.round.roundNumber}`);
     this.human.choose();
     this.computer.choose();
     this.displayRoundChoices();
@@ -99,25 +76,41 @@ const RPSGame = {
   playGame() {
     console.clear();
     this.displayWelcomeMessage();
-    while (this.human.wins < this.roundsNeededToWin &&
-      this.computer.wins < this.roundsNeededToWin) {
+
+    while (!this.gameWon()) {
       this.playRound();
       this.displayScore();
-      this.round.roundNumber += 1;
-      if (this.human.wins === this.roundsNeededToWin) this.gameWinner = 'You';
-      else if (this.computer.wins === this.roundsNeededToWin) this.gameWinner = 'Computer';
-      // if (!this.playAgain()) break;
+      this.game.round.roundNumber += 1;
+      if (this.gameWon()) {
+        this.displayGameWinner();
+        if (this.playAgain()) {
+          this.game = createNewGame();
+          this.human.roundWins = 0;
+          this.computer.roundWins = 0;
+          this.playGame();
+        } else {
+          this.displayGoodbyeMessage();
+        }
+      }
     }
+  },
 
-    this.displayGameWinner();
-    this.displayGoodbyeMessage();
+  gameWon() {
+    if (this.human.roundWins === this.roundsNeededToWin) {
+      this.game.gameWinner = 'You';
+      this.human.gameWins += 1;
+    } else if (this.computer.roundWins === this.roundsNeededToWin) {
+      this.game.gameWinner = 'Computer';
+      this.computer.gameWins += 1;
+    }
+    return this.game.gameWinner;
   },
 
   playAgain() {
     console.log('\nWould you like to play again? (y/n)');
 
     while (true) {
-      let answer = readline.prompt();
+      let answer = readline.prompt().toLowerCase();
       if (answer !== 'y' && answer !== 'yes'
         && answer !== 'n' && answer !== 'no') {
         console.clear();
@@ -125,12 +118,19 @@ const RPSGame = {
         continue;
       }
       console.clear();
-      return answer.toLowerCase()[0] === 'y';
+      return ['y', 'yes'].includes(answer.toLowerCase());
     }
   }
 };
 
-RPSGame.playGame();
+RPS.playGame();
+
+function createNewGame() {
+  return {
+    round: createRound(),
+    gameWinner: null,
+  };
+}
 
 function createRound() {
   return {
@@ -142,7 +142,8 @@ function createRound() {
 function createPlayer() {
   return {
     move: null,
-    wins: 0,
+    roundWins: 0,
+    gameWins: 0,
   };
 }
 
@@ -155,16 +156,16 @@ function createHuman() {
 
       while (true) {
         console.log('Please choose (r)ock, (p)aper, or (s)cissors:');
-        choice = readline.prompt();
-        if (choice.toLowerCase() === 'r') choice = 'rock';
-        if (choice.toLowerCase() === 'p') choice = 'paper';
-        if (choice.toLowerCase() === 's') choice = 'scissors';
-        if (['rock', 'paper', 'scissors'].includes(choice.toLowerCase())) break;
+        choice = readline.prompt().toLowerCase();
+        if (choice === 'r') choice = 'rock';
+        if (choice === 'p') choice = 'paper';
+        if (choice === 's') choice = 'scissors';
+        if (['rock', 'paper', 'scissors'].includes(choice)) break;
         console.clear();
         console.log('Sorry, invalid choice.');
       }
 
-      this.move = choice.toLowerCase();
+      this.move = choice;
     },
   };
 
