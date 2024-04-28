@@ -40,22 +40,21 @@ const RPS = {
       this.playRound();
       this.displayScore();
       this.game.round.roundNumber += 1;
-      if (this.gameWon()) {
-        this.displayGameWinner();
-        if (this.playAgain()) {
-          this.game = createNewGame();
-          this.human.roundWins = 0;
-          this.computer.roundWins = 0;
-          this.playGame();
-        } else {
-          this.displayGoodbyeMessage();
-        }
-      }
+    }
+
+    this.displayGameWinner();
+    if (this.playAgain()) {
+      this.game = createNewGame();
+      this.human.roundWins = 0;
+      this.computer.roundWins = 0;
+      this.playGame();
+    } else {
+      this.displayGoodbyeMessage();
     }
   },
 
   playRound() {
-    console.log(`This is Round ${this.game.round.roundNumber}`);
+    console.log(`Round ${this.game.round.roundNumber} starts now!`);
     this.human.choose();
     this.computer.choose();
     this.displayRoundChoices();
@@ -156,7 +155,7 @@ Ties: ${this.game.round.ties}\n`);
       && msg.includes(computerMove.toLowerCase());
     })[0];
 
-    console.log(`\n${message}`);
+    console.log(`\n>>> ${message} <<<`);
   }
 };
 
