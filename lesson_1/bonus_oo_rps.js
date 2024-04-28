@@ -5,79 +5,19 @@ const RPS = {
   game: createNewGame(),
   human: createHuman(),
   computer: createComputer(),
-  choices: ['rock', 'paper', 'scissors'],
+  winningMoves: {
+    rock: 'scissors',
+    paper: 'rock',
+    scissors: 'paper',
+  },
+  choices: null,
+  invalidChoiceMsg: 'Sorry, invalid choice',
   roundsNeededToWin: 3,
-
-  displayScore() {
-    console.log(`
-***Score***
-    ${this.human.name}: ${this.human.roundWins}
-    ${this.computer.name}: ${this.computer.roundWins} 
-    Ties: ${this.game.round.ties}\n`);
-  },
-
-  displayWelcomeMessage() {
-    console.log(`Welcome to ${this.nameOfGame}!
-\nThe game will end when a player wins ${this.roundsNeededToWin} rounds.\n`);
-  },
-
-  displayGoodbyeMessage() {
-    console.log(`\nThanks for playing ${this.nameOfGame}. Goodbye!`);
-  },
-
-  displayRoundChoices() {
-    console.clear();
-    console.log(`${this.human.name} chose: ${this.human.move} ${this.displayChoiceEmoji(this.human)}`);
-    console.log(
-      `${this.computer.name} chose: ${this.computer.move} ${this.displayChoiceEmoji(this.computer)}`);
-  },
-
-  displayChoiceEmoji(player) {
-    let choiceEmoji;
-    if (player.move === 'rock') choiceEmoji = '🪨';
-    if (player.move === 'paper') choiceEmoji = '🧻';
-    if (player.move === 'scissors') choiceEmoji = '✂️';
-
-    return choiceEmoji;
-  },
-
-  displayRoundWinner() {
-    let humanMove = this.human.move;
-    let computerMove = this.computer.move;
-
-    if ((humanMove === 'rock' && computerMove === 'scissors') ||
-        (humanMove === 'scissors' && computerMove === 'paper') ||
-        (humanMove === 'paper' && computerMove === 'rock')) {
-      this.human.roundWins += 1;
-      console.log(`\n${this.human.name} win the round!`);
-    } else if ((computerMove === 'rock' && humanMove === 'scissors') ||
-               (computerMove === 'scissors' && humanMove === 'paper') ||
-               (computerMove === 'paper' && humanMove === 'rock')) {
-      console.log(`\n${this.computer.name} wins the round`);
-      this.computer.roundWins += 1;
-    } else {
-      console.log("\nIt's a tie");
-      this.game.round.ties += 1;
-    }
-  },
-
-  displayGameWinner() {
-    let emoji = this.game.gameWinner === `${this.human.name}` ? '🎉' : '😔';
-    console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
-    console.log(`\nYou've won ${this.human.gameWins} game(s). ${this.computer.name} has won ${this.computer.gameWins} game(s)`);
-  },
-
-  playRound() {
-    console.log(`This is Round ${this.game.round.roundNumber}`);
-    this.human.choose();
-    this.computer.choose();
-    this.displayRoundChoices();
-    this.displayRoundWinner();
-  },
 
   playGame() {
     console.clear();
     this.displayWelcomeMessage();
+    this.choices = Object.keys(this.winningMoves);
 
     while (!this.gameWon()) {
       this.playRound();
@@ -95,6 +35,14 @@ const RPS = {
         }
       }
     }
+  },
+
+  playRound() {
+    console.log(`This is Round ${this.game.round.roundNumber}`);
+    this.human.choose();
+    this.computer.choose();
+    this.displayRoundChoices();
+    this.displayRoundWinner();
   },
 
   gameWon() {
@@ -117,13 +65,68 @@ const RPS = {
       let answer = readline.prompt().toLowerCase();
       if (!validAnswers.includes(answer)) {
         console.clear();
-        console.log('Sorry, invalid choice. Enter y or n');
+        console.log(`${this.invalidChoiceMsg}. Enter y or n`);
         continue;
       }
       console.clear();
       return affirmativeAnswers.includes(answer.toLowerCase());
     }
-  }
+  },
+
+  displayWelcomeMessage() {
+    console.log(`Welcome to ${this.nameOfGame}!
+\nThe game will end when a player wins ${this.roundsNeededToWin} rounds.\n`);
+  },
+
+  displayScore() {
+    console.log(`
+***Score***
+    ${this.human.name}: ${this.human.roundWins}
+    ${this.computer.name}: ${this.computer.roundWins} 
+    Ties: ${this.game.round.ties}\n`);
+  },
+
+  displayGoodbyeMessage() {
+    console.log(`Thanks for playing ${this.nameOfGame}. Goodbye!`);
+  },
+
+  displayRoundChoices() {
+    console.clear();
+    console.log(`${this.human.name} chose: ${this.human.move} ${this.displayChoiceEmoji(this.human)}`);
+    console.log(
+      `${this.computer.name} chose: ${this.computer.move} ${this.displayChoiceEmoji(this.computer)}`);
+  },
+
+  displayChoiceEmoji(player) {
+    let choiceEmoji;
+    if (player.move === 'rock') choiceEmoji = '🪨';
+    if (player.move === 'paper') choiceEmoji = '🧻';
+    if (player.move === 'scissors') choiceEmoji = '✂️';
+
+    return choiceEmoji;
+  },
+
+  displayRoundWinner() {
+    let humanMove = this.human.move;
+    let computerMove = this.computer.move;
+
+    if (this.winningMoves[humanMove].includes(computerMove)) {
+      this.human.roundWins += 1;
+      console.log(`\n${this.human.name} win the round!`);
+    } else if (this.winningMoves[computerMove].includes(humanMove)) {
+      console.log(`\n${this.computer.name} wins the round`);
+      this.computer.roundWins += 1;
+    } else {
+      console.log("\nIt's a tie");
+      this.game.round.ties += 1;
+    }
+  },
+
+  displayGameWinner() {
+    let emoji = this.game.gameWinner === `${this.human.name}` ? '🎉' : '😔';
+    console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
+    console.log(`\nYou've won ${this.human.gameWins} game(s). ${this.computer.name} has won ${this.computer.gameWins} game(s)`);
+  },
 };
 
 RPS.playGame();
