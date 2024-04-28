@@ -40,6 +40,7 @@ const RPS = {
       this.playRound();
       this.displayScore();
       this.game.round.roundNumber += 1;
+      
     }
 
     this.displayGameWinner();
@@ -54,11 +55,25 @@ const RPS = {
   },
 
   playRound() {
-    console.log(`Round ${this.game.round.roundNumber} starts now!`);
-    this.human.choose();
-    this.computer.choose();
-    this.displayRoundChoices();
-    this.displayRoundWinner();
+    let roundNumber = this.game.round.roundNumber;
+    console.log(`Press enter to start Round ${roundNumber}`);
+    let ready = readline.prompt().trim();
+    console.clear()
+
+    while (true) {
+      if (ready === '') {
+        console.log(`*** Round ${roundNumber} ***\n`);
+        this.human.choose();
+        this.computer.choose();
+        this.displayRoundChoices();
+        this.displayRoundWinner();
+        break;
+      } else {
+        console.log(this.invalidChoiceMsg);
+        console.log('Press enter if you are ready for the next round');
+        ready = readline.question().trim();
+      }
+    }
   },
 
   gameWon() {
