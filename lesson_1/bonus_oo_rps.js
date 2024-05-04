@@ -1,13 +1,8 @@
 const readline = require('readline-sync');
 
-const RPS = {
-  nameOfGame: 'Rock, Paper, Scissors, Lizard, Spock',
-  game: createNewGame(),
-  human: createHuman(),
-  computer: createComputer(),
-  roundsNeededToWin: 3,
-  invalidChoiceMsg: 'Sorry, invalid choice',
+const ROUNDS_TO_WIN = 3;
 
+const MOVES = {
   winningMoves: {
     rock: ['scissors', 'lizard'],
     paper: ['rock', 'spock'],
@@ -28,13 +23,19 @@ const RPS = {
     'Spock vaporizes rock',
     'Rock breaks scissors',
   ],
+};
 
-  choices: null,
+const RPS = {
+  nameOfGame: 'Rock, Paper, Scissors, Lizard, Spock',
+  game: createNewGame(),
+  human: createHuman(),
+  computer: createComputer(),
+  invalidChoiceMsg: 'Sorry, invalid choice',
+  choices: Object.keys(MOVES.winningMoves),
 
   playGame() {
     console.clear();
     this.displayWelcomeMessage();
-    this.choices = Object.keys(this.winningMoves);
 
     while (!this.gameWon()) {
       this.playRound();
@@ -76,10 +77,10 @@ const RPS = {
   },
 
   gameWon() {
-    if (this.human.roundWins === this.roundsNeededToWin) {
+    if (this.human.roundWins === ROUNDS_TO_WIN) {
       this.game.gameWinner = `${this.human.name}`;
       this.human.gameWins += 1;
-    } else if (this.computer.roundWins === this.roundsNeededToWin) {
+    } else if (this.computer.roundWins === ROUNDS_TO_WIN) {
       this.game.gameWinner = `${this.computer.name}`;
       this.computer.gameWins += 1;
     }
@@ -105,7 +106,7 @@ const RPS = {
 
   displayWelcomeMessage() {
     console.log(`Welcome to ${this.nameOfGame}!
-\nThe game will end when a player wins ${this.roundsNeededToWin} rounds.\n`);
+\nThe game will end when a player wins ${ROUNDS_TO_WIN} rounds.\n`);
   },
 
   displayScore() {
@@ -142,11 +143,11 @@ Ties: ${this.game.round.ties}\n`);
     let humanMove = this.human.move;
     let computerMove = this.computer.move;
 
-    if (this.winningMoves[humanMove].includes(computerMove)) {
+    if (MOVES.winningMoves[humanMove].includes(computerMove)) {
       this.human.roundWins += 1;
       this.displayWinningMove(humanMove, computerMove);
       console.log(`\n${this.human.name} win the round! 🙌`);
-    } else if (this.winningMoves[computerMove].includes(humanMove)) {
+    } else if (MOVES.winningMoves[computerMove].includes(humanMove)) {
       this.displayWinningMove(humanMove, computerMove);
       console.log(`\n${this.computer.name} wins the round ⛔`);
       this.computer.roundWins += 1;
@@ -158,12 +159,12 @@ Ties: ${this.game.round.ties}\n`);
 
   displayGameWinner() {
     let emoji = this.game.gameWinner === `${this.human.name}` ? '🎉' : '😔';
-    console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${this.roundsNeededToWin} rounds, winning the game`);
+    console.log(`\n${emoji.repeat(3)} ${this.game.gameWinner} won ${ROUNDS_TO_WIN} rounds, winning the game`);
     console.log(`\nYou've won ${this.human.gameWins} game(s). ${this.computer.name} has won ${this.computer.gameWins} game(s)`);
   },
 
   displayWinningMove(humanMove, computerMove) {
-    let message = this.winningMoveMessages.filter(msg => {
+    let message = MOVES.winningMoveMessages.filter(msg => {
       msg = msg.toLowerCase();
       return msg.includes(humanMove.toLowerCase())
       && msg.includes(computerMove.toLowerCase());
