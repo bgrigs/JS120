@@ -51,8 +51,8 @@ class Board {
   }
 
   displayWithClear() {
-    console.clear();
-    console.log('');
+    // console.clear();
+    // console.log('');
     this.display();
   }
 
@@ -60,9 +60,16 @@ class Board {
     this.squares[key].setMarker(marker);
   }
 
-  unusedSquares() {
-    let keys = Object.keys(this.squares);
+  unusedSquares(keys = Object.keys(this.squares)) {
     return keys.filter(key => this.squares[key].isUnused());
+  }
+
+  /* Previously only had the method unusedSquares but the title makes it sound
+  like more than one square will always be returned. When looking for a row to
+  defend/attack only one square should be returned so I added openSquareInRow.*/
+
+  openSquareInRow(row) {
+    return this.unusedSquares(row);
   }
 
   isFull() {
@@ -167,6 +174,41 @@ class TTTGame {
   }
 
   computerMoves() {
+    let choice;
+
+    if (this.computerDefense()) {
+      choice = this.computerDefense();
+    } else {
+      choice = this.computerRandomMove();
+    }
+
+    this.board.markSquareAt(choice, this.computer.getMarker());
+  }
+
+  computerDefense() {
+    let rowToDefend;
+    let spaceToDefend;
+
+    let rowsAtRisk = TTTGame.POSSIBLE_WINNING_ROWS.filter(row => {
+      return this.board.countMarkersFor(this.human, row) === 2 &&
+      this.board.unusedSquares(row).length === 1;
+    });
+
+    if (rowsAtRisk.length === 1) {
+      rowToDefend = rowsAtRisk[0];
+    } else if (rowsAtRisk.length > 1) {
+      let randomIndex =  Math.floor((rowsAtRisk.length * Math.random()));
+      rowToDefend = rowsAtRisk[randomIndex];
+    }
+
+    if (rowToDefend) {
+      spaceToDefend = this.board.openSquareInRow(rowToDefend);
+    }
+
+    return spaceToDefend;
+  }
+
+  computerRandomMove() {
     let validChoices = this.board.unusedSquares();
     let choice;
 
@@ -174,7 +216,7 @@ class TTTGame {
       choice = Math.floor((9 * Math.random()) + 1).toString();
     } while (!validChoices.includes(choice));
 
-    this.board.markSquareAt(choice, this.computer.getMarker());
+    return choice;
   }
 
   gameOver() {
