@@ -1,204 +1,198 @@
 let readline = require('readline-sync');
 
-class Square {
-  static UNUSED_SQUARE = ' ';
-  static HUMAN_MARKER = 'X';
-  static COMPUTER_MARKER = 'O';
+function Square(marker) {
+  this.marker = marker || Square.UNUSED_SQUARE;
+}
 
-  constructor(marker = Square.UNUSED_SQUARE) {
-    this.marker = marker;
-  }
+Square.UNUSED_SQUARE = ' ';
+Square.HUMAN_MARKER = 'X';
+Square.COMPUTER_MARKER = '0';
 
-  toString() {
-    return this.marker;
-  }
+Square.prototype.toString = function() {
+  return this.marker;
+};
 
-  setMarker(marker) {
-    this.marker = marker;
-  }
+Square.prototype.setMarker = function(marker) {
+  this.marker = marker;
+};
 
-  getMarker() {
-    return this.marker;
-  }
+Square.prototype.getMarker = function() {
+  return this.marker;
+};
 
-  isUnused() {
-    return this.marker === Square.UNUSED_SQUARE;
+Square.prototype.isUnused = function() {
+  return this.marker === Square.UNUSED_SQUARE;
+};
+
+function Board() {
+  this.squares = {};
+  for (let counter = 1; counter <= 9; counter += 1) {
+    this.squares[String(counter)] = new Square();
   }
 }
 
-class Board {
-  constructor() {
-    this.squares = {};
-    for (let counter = 1; counter <= 9; counter += 1) {
-      this.squares[String(counter)] = new Square();
-    }
-  }
+Board.prototype.display = function() {
+  console.log("");
+  console.log("     |     |");
+  console.log(`  ${this.squares['1']}  |  ${this.squares['2']}  |  ${this.squares['3']}`);
+  console.log("     |     |");
+  console.log("-----+-----+-----");
+  console.log("     |     |");
+  console.log(`  ${this.squares['4']}  |  ${this.squares['5']}  |  ${this.squares['6']}`);
+  console.log("     |     |");
+  console.log("-----+-----+-----");
+  console.log("     |     |");
+  console.log(`  ${this.squares['7']}  |  ${this.squares['8']}  |  ${this.squares['9']}`);
+  console.log("     |     |");
+  console.log("");
+};
 
-  display() {
-    console.log("");
-    console.log("     |     |");
-    console.log(`  ${this.squares['1']}  |  ${this.squares['2']}  |  ${this.squares['3']}`);
-    console.log("     |     |");
-    console.log("-----+-----+-----");
-    console.log("     |     |");
-    console.log(`  ${this.squares['4']}  |  ${this.squares['5']}  |  ${this.squares['6']}`);
-    console.log("     |     |");
-    console.log("-----+-----+-----");
-    console.log("     |     |");
-    console.log(`  ${this.squares['7']}  |  ${this.squares['8']}  |  ${this.squares['9']}`);
-    console.log("     |     |");
-    console.log("");
-  }
+Board.prototype.displayWithClear = function() {
+  console.clear();
+  console.log('');
+  this.display();
+};
 
-  displayWithClear() {
-    console.clear();
-    console.log('');
-    this.display();
-  }
+Board.prototype.markSquareAt = function(key, marker) {
+  this.squares[key].setMarker(marker);
+};
 
-  markSquareAt(key, marker) {
-    this.squares[key].setMarker(marker);
-  }
+Board.prototype.unusedSquares = function() {
+  let keys = Object.keys(this.squares);
+  return keys.filter(key => this.squares[key].isUnused());
+};
 
-  unusedSquares() {
-    let keys = Object.keys(this.squares);
-    return keys.filter(key => this.squares[key].isUnused());
-  }
+Board.prototype.isFull = function() {
+  return this.unusedSquares().length === 0;
+};
 
-  isFull() {
-    return this.unusedSquares().length === 0;
-  }
+Board.prototype.countMarkersFor = function(player, keys) {
+  let markers = keys.filter(key => {
+    return this.squares[key].getMarker() === player.getMarker();
+  });
 
-  countMarkersFor(player, keys) {
-    let markers = keys.filter(key => {
-      return this.squares[key].getMarker() === player.getMarker();
-    });
+  return markers.length;
+};
 
-    return markers.length;
-  }
+function Player(marker) {
+  this.marker = marker;
 }
 
-class Player {
-  constructor(marker) {
-    this.marker = marker;
-  }
+Player.prototype.getMarker = function() {
+  return this.marker;
+};
 
-  getMarker() {
-    return this.marker;
-  }
+function Human() {
+  Player.call(this, Square.HUMAN_MARKER);
 }
 
-class Human extends Player {
-  constructor() {
-    super(Square.HUMAN_MARKER);
-  }
+Human.prototype = Object.create(Player.prototype);
+Human.prototype.constructor = Human;
+
+function Computer() {
+  Player.call(this, Square.COMPUTER_MARKER);
 }
 
-class Computer extends Player {
-  constructor() {
-    super(Square.COMPUTER_MARKER);
-  }
+Computer.prototype = Object.create(Player.prototype);
+Computer.constructor = Computer;
+
+function TTTGame() {
+  this.board = new Board();
+  this.human = new Human();
+  this.computer = new Computer();
 }
 
-class TTTGame {
-  static POSSIBLE_WINNING_ROWS = [
-    ['1', '2', '3'], // top row
-    ['4', '5', '6'], // center row
-    ['7', '8', '9'], // bottom row
-    ['1', '4', '7'], // left column
-    ['2', '5', '8'], // middle column
-    ['3', '6', '9'], // right column
-    ['1', '5', '9'], // diagonal, top left to bottom right
-    ['3', '5', '7'], // diagonal, top right to bottom left
-  ];
+TTTGame.POSSIBLE_WINNING_ROWS = [
+  ['1', '2', '3'], // top row
+  ['4', '5', '6'], // center row
+  ['7', '8', '9'], // bottom row
+  ['1', '4', '7'], // left column
+  ['2', '5', '8'], // middle column
+  ['3', '6', '9'], // right column
+  ['1', '5', '9'], // diagonal, top left to bottom right
+  ['3', '5', '7'], // diagonal, top right to bottom left
+];
 
-  constructor() {
-    this.board = new Board();
-    this.human = new Human();
-    this.computer = new Computer();
-  }
+TTTGame.prototype.play = function() {
+  console.clear();
+  this.displayWelcomeMessage();
 
-  play() {
-    console.clear();
-    this.displayWelcomeMessage();
+  this.board.display();
 
-    this.board.display();
+  while (true) {
+    this.humanMoves();
+    if (this.gameOver()) break;
 
-    while (true) {
-      this.humanMoves();
-      if (this.gameOver()) break;
-
-      this.computerMoves();
-      if (this.gameOver()) break;
-
-      this.board.displayWithClear();
-    }
+    this.computerMoves();
+    if (this.gameOver()) break;
 
     this.board.displayWithClear();
-    this.displayResults();
-    this.displayGoodbyeMessage();
   }
 
-  humanMoves() {
-    let choice;
+  this.board.displayWithClear();
+  this.displayResults();
+  this.displayGoodbyeMessage();
+};
 
-    while (true) {
-      let validChoices = this.board.unusedSquares();
-      const prompt = `Choose a square (${validChoices.join(", ")}): `;
-      choice = readline.question(prompt);
+TTTGame.prototype.humanMoves = function() {
+  let choice;
 
-      if (validChoices.includes(choice)) break;
-
-      console.log('Sorry, not a valid choice');
-      console.log('');
-    }
-
-    this.board.markSquareAt(choice, this.human.getMarker());
-  }
-
-  computerMoves() {
+  while (true) {
     let validChoices = this.board.unusedSquares();
-    let choice;
+    const prompt = `Choose a square (${validChoices.join(", ")}): `;
+    choice = readline.question(prompt);
 
-    do {
-      choice = Math.floor((9 * Math.random()) + 1).toString();
-    } while (!validChoices.includes(choice));
+    if (validChoices.includes(choice)) break;
 
-    this.board.markSquareAt(choice, this.computer.getMarker());
+    console.log('Sorry, not a valid choice');
+    console.log('');
   }
 
-  gameOver() {
-    return this.board.isFull() || this.someoneWon();
-  }
+  this.board.markSquareAt(choice, this.human.getMarker());
+};
 
-  someoneWon() {
-    return this.isWinner(this.human) || this.isWinner(this.computer);
-  }
+TTTGame.prototype.computerMoves = function() {
+  let validChoices = this.board.unusedSquares();
+  let choice;
 
-  displayWelcomeMessage() {
-    console.log('Welcome to Tic Tac Toe!');
-  }
+  do {
+    choice = Math.floor((9 * Math.random()) + 1).toString();
+  } while (!validChoices.includes(choice));
 
-  displayGoodbyeMessage() {
-    console.log('Thanks for playing Tic Tac Toe. Goodbye!');
-  }
+  this.board.markSquareAt(choice, this.computer.getMarker());
+};
 
-  displayResults() {
-    if (this.isWinner(this.human)) {
-      console.log('You won. Congrats!');
-    } else if (this.isWinner(this.computer)) {
-      console.log('Computer wins.');
-    } else {
-      console.log('A tied game. How boring.');
-    }
-  }
+TTTGame.prototype.gameOver = function() {
+  return this.board.isFull() || this.someoneWon();
+};
 
-  isWinner(player) {
-    return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
-      return this.board.countMarkersFor(player, row) === 3;
-    });
+TTTGame.prototype.someoneWon = function() {
+  return this.isWinner(this.human) || this.isWinner(this.computer);
+};
+
+TTTGame.prototype.displayWelcomeMessage = function() {
+  console.log('Welcome to Tic Tac Toe!');
+};
+
+TTTGame.prototype.displayGoodbyeMessage = function() {
+  console.log('Thanks for playing Tic Tac Toe. Goodbye!');
+};
+
+TTTGame.prototype.displayResults = function() {
+  if (this.isWinner(this.human)) {
+    console.log('You won. Congrats!');
+  } else if (this.isWinner(this.computer)) {
+    console.log('Computer wins.');
+  } else {
+    console.log('A tied game. How boring.');
   }
-}
+};
+
+TTTGame.prototype.isWinner = function(player) {
+  return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
+    return this.board.countMarkersFor(player, row) === 3;
+  });
+};
 
 let game = new TTTGame();
 game.play();
