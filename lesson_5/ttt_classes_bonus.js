@@ -66,7 +66,7 @@ class Board {
 
   /* Previously only had the method unusedSquares but the title makes it sound
   like more than one square will always be returned. When looking for a row to
-  defend/attack only one square should be returned so I added openSquareInRow.*/
+  defend/attack only one square will be returned so I added openSquareInRow.*/
 
   openSquareInRow(row) {
     return this.unusedSquares(row);
@@ -202,7 +202,7 @@ class TTTGame {
     }
 
     if (rowToDefend) {
-      spaceToDefend = this.board.openSquareInRow(rowToDefend);
+      spaceToDefend = this.board.openSquareInRow(rowToDefend).toString();
     }
 
     return spaceToDefend;
