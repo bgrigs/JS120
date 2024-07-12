@@ -172,7 +172,9 @@ class TTTGame {
   computerMoves() {
     let choice;
 
-    if (this.computerOffense()) {
+    if (this.centerSquareAvailable()) {
+      choice = this.chooseCenterSquare();
+    } else if (this.computerOffense()) {
       choice = this.computerOffense();
     } else if (this.computerDefense()) {
       choice = this.computerDefense();
@@ -183,10 +185,17 @@ class TTTGame {
     this.board.markSquareAt(choice, this.computer.getMarker());
   }
 
+  centerSquareAvailable() {
+    return this.board.isUnusedSquare('5');
+  }
+
+  chooseCenterSquare() {
+    return '5';
+  }
+
   computerOffense() {
     let rowToWin = this.findCriticalRow(this.computer);
     if (!rowToWin) return null;
-    console.log(`square to win is ${this.findCriticalSquare(rowToWin)}`);
     return this.findCriticalSquare(rowToWin);
   }
 
