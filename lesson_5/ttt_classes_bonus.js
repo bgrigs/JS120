@@ -51,8 +51,8 @@ class Board {
   }
 
   displayWithClear() {
-    // console.clear();
-    // console.log('');
+    console.clear();
+    console.log('');
     this.display();
   }
 
@@ -131,10 +131,54 @@ class TTTGame {
     this.computer = new Computer();
   }
 
-  play() {
-    // console.clear();
+  /*
+- playGame
+  - welcome player
+
+    - playRound
+      - display board
+      - turn taking, checking for game over etc
+      - display board
+      - display results
+      - ask to play again
+        - if y
+          - clear board
+          - continue to top
+        - if n
+          -break
+
+  - say goodbye
+  */
+
+  playGame() {
+    console.clear();
     this.displayWelcomeMessage();
 
+    while (true) {
+      this.playRound();
+      if (!this.playAgain()) break;
+      console.clear();
+      console.log();
+      this.board = new Board();
+    }
+
+    this.displayGoodbyeMessage();
+  }
+
+  playAgain() {
+    let answer = readline.question('Would you like to play again? (y or n): ');
+
+    while (true) {
+      if (answer.toLowerCase() === 'y') return true;
+      if (answer.toLowerCase() === 'n') return false;
+      else {
+        answer = readline.question(`Invalid answer. Please select 'y' or 'n': `);
+        console.log();
+      }
+    }
+  }
+
+  playRound() {
     this.board.display();
 
     while (true) {
@@ -149,7 +193,6 @@ class TTTGame {
 
     this.board.displayWithClear();
     this.displayResults();
-    this.displayGoodbyeMessage();
   }
 
   humanMoves() {
@@ -297,4 +340,4 @@ class TTTGame {
 }
 
 let game = new TTTGame();
-game.play();
+game.playGame();
