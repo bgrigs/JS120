@@ -170,19 +170,25 @@ class TTTGame {
   }
 
   computerMoves() {
-    let choice;
-
-    if (this.centerSquareAvailable()) {
-      choice = this.chooseCenterSquare();
-    } else if (this.computerOffense()) {
-      choice = this.computerOffense();
-    } else if (this.computerDefense()) {
-      choice = this.computerDefense();
-    } else {
-      choice = this.computerRandomMove();
-    }
-
+    let choice = this.computerFindsBestMove();
     this.board.markSquareAt(choice, this.computer.getMarker());
+  }
+
+  computerFindsBestMove() {
+    while (true) {
+      if (this.centerSquareAvailable()) return this.chooseCenterSquare();
+
+      let offensiveMove = this.computerOffenseToWin();
+      if (offensiveMove) return offensiveMove;
+
+      let defensiveMove = this.computerDefense();
+      if (defensiveMove) return defensiveMove;
+
+      offensiveMove = this.computerOffenseToAdvance();
+      if (offensiveMove) return offensiveMove;
+
+      else return this.computerRandomMove();
+    }
   }
 
   centerSquareAvailable() {
@@ -193,10 +199,18 @@ class TTTGame {
     return '5';
   }
 
-  computerOffense() {
+  computerOffenseToWin() {
     let rowToWin = this.findCriticalRow(this.computer);
-    if (!rowToWin) return null;
-    return this.findCriticalSquare(rowToWin);
+    if (rowToWin) return this.findCriticalSquare(rowToWin);
+
+    return null;
+  }
+
+  computerOffenseToAdvance() {
+    let rowToAdvance = this.findRowToAdvance();
+    if (rowToAdvance) return this.findSquareToAdvance(rowToAdvance);
+
+    return null;
   }
 
   computerDefense() {
@@ -210,12 +224,22 @@ class TTTGame {
     return row[index];
   }
 
-  findCriticalRow(player) {
+  findRowToAdvance() {
+    return this.findCriticalRow(this.computer, 1, 2);
+  }
+
+  findSquareToAdvance(row) {
+    let openSquares = row.filter(key => this.board.isUnusedSquare(key));
+    let randomIndex = Math.floor(openSquares.length * Math.random());
+    return openSquares[randomIndex];
+  }
+
+  findCriticalRow(player, squaresMarked = 2, openSquares = 1) {
     let row;
 
     let criticalRows = TTTGame.POSSIBLE_WINNING_ROWS.filter(row => {
-      return this.board.countMarkersFor(player, row) === 2 &&
-      this.board.unusedSquares(row).length === 1;
+      return this.board.countMarkersFor(player, row) === squaresMarked &&
+      this.board.unusedSquares(row).length === openSquares;
     });
 
     if (criticalRows.length === 1) {
