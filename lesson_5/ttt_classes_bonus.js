@@ -158,7 +158,7 @@ class TTTGame {
       this.playRound();
       if (!this.playAgain()) break;
       console.clear();
-      console.log();
+      console.log('');
       this.board = new Board();
     }
 
@@ -173,7 +173,7 @@ class TTTGame {
       if (answer.toLowerCase() === 'n') return false;
       else {
         answer = readline.question(`Invalid answer. Please select 'y' or 'n': `);
-        console.log();
+        console.log('');
       }
     }
   }
@@ -193,6 +193,7 @@ class TTTGame {
 
     this.board.displayWithClear();
     this.displayResults();
+    console.log('');
   }
 
   humanMoves() {
@@ -319,6 +320,7 @@ class TTTGame {
   }
 
   displayGoodbyeMessage() {
+    console.log('');
     console.log('Thanks for playing Tic Tac Toe. Goodbye!');
   }
 
