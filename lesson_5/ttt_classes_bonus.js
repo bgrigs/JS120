@@ -64,12 +64,8 @@ class Board {
     return keys.filter(key => this.squares[key].isUnused());
   }
 
-  /* Previously only had the method unusedSquares but the title makes it sound
-  like more than one square will always be returned. When looking for a row to
-  defend/attack only one square will be returned so I added openSquareInRow.*/
-
-  openSquareInRow(row) {
-    return this.unusedSquares(row);
+  isUnusedSquare(key) {
+    return this.squares[key].isUnused();
   }
 
   isFull() {
@@ -136,7 +132,7 @@ class TTTGame {
   }
 
   play() {
-    console.clear();
+    // console.clear();
     this.displayWelcomeMessage();
 
     this.board.display();
@@ -176,7 +172,9 @@ class TTTGame {
   computerMoves() {
     let choice;
 
-    if (this.computerDefense()) {
+    if (this.computerOffense()) {
+      choice = this.computerOffense();
+    } else if (this.computerDefense()) {
       choice = this.computerDefense();
     } else {
       choice = this.computerRandomMove();
@@ -185,27 +183,40 @@ class TTTGame {
     this.board.markSquareAt(choice, this.computer.getMarker());
   }
 
-  computerDefense() {
-    let rowToDefend;
-    let spaceToDefend;
+  computerOffense() {
+    let rowToWin = this.findCriticalRow(this.computer);
+    if (!rowToWin) return null;
+    console.log(`square to win is ${this.findCriticalSquare(rowToWin)}`);
+    return this.findCriticalSquare(rowToWin);
+  }
 
-    let rowsAtRisk = TTTGame.POSSIBLE_WINNING_ROWS.filter(row => {
-      return this.board.countMarkersFor(this.human, row) === 2 &&
+  computerDefense() {
+    let rowToDefend = this.findCriticalRow(this.human);
+    if (!rowToDefend) return null;
+    return this.findCriticalSquare(rowToDefend);
+  }
+
+  findCriticalSquare(row) {
+    let index = row.findIndex(key => this.board.isUnusedSquare(key));
+    return row[index];
+  }
+
+  findCriticalRow(player) {
+    let row;
+
+    let criticalRows = TTTGame.POSSIBLE_WINNING_ROWS.filter(row => {
+      return this.board.countMarkersFor(player, row) === 2 &&
       this.board.unusedSquares(row).length === 1;
     });
 
-    if (rowsAtRisk.length === 1) {
-      rowToDefend = rowsAtRisk[0];
-    } else if (rowsAtRisk.length > 1) {
-      let randomIndex =  Math.floor((rowsAtRisk.length * Math.random()));
-      rowToDefend = rowsAtRisk[randomIndex];
+    if (criticalRows.length === 1) {
+      row = criticalRows.flat();
+    } else if (criticalRows.length > 1) {
+      let randomIndex =  Math.floor((criticalRows.length * Math.random()));
+      row = criticalRows[randomIndex];
     }
 
-    if (rowToDefend) {
-      spaceToDefend = this.board.openSquareInRow(rowToDefend).toString();
-    }
-
-    return spaceToDefend;
+    return row;
   }
 
   computerRandomMove() {
