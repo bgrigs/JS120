@@ -157,25 +157,27 @@ class TTTGame {
     while (true) {
       this.playRound();
       if (!this.playAgain()) break;
+
+      this.board = new Board();
       console.clear();
       console.log('');
-      this.board = new Board();
     }
 
     this.displayGoodbyeMessage();
   }
 
   playAgain() {
-    let answer = readline.question('Would you like to play again? (y or n): ');
+    let answer = readline.question('Would you like to play again? (y or n): ').toLowerCase();
 
     while (true) {
-      if (answer.toLowerCase() === 'y') return true;
-      if (answer.toLowerCase() === 'n') return false;
+      if (['y', 'n'].includes(answer)) break;
       else {
         answer = readline.question(`Invalid answer. Please select 'y' or 'n': `);
         console.log('');
       }
     }
+
+    return answer === 'y';
   }
 
   playRound() {
