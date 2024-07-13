@@ -116,6 +116,8 @@ class TTTGame {
     ['3', '5', '7'], // diagonal, top right to bottom left
   ];
 
+  static roundsNeededToWinMatch = 3;
+
   static joinOr(choices, punctuation = ', ', word = 'or') {
     if (choices.length === 1) {
       return choices[0].toString();
@@ -130,6 +132,7 @@ class TTTGame {
     this.board = new Board();
     this.human = new Human();
     this.computer = new Computer();
+    this.round = 1;
   }
 
   playGame() {
@@ -138,6 +141,12 @@ class TTTGame {
 
     while (true) {
       this.playRound();
+
+      if (this.someoneWonMatch()) {
+        this.displayMatchResults();
+        break;
+      }
+
       if (!this.playAgain()) break;
 
       this.board = new Board();
@@ -149,7 +158,7 @@ class TTTGame {
   }
 
   playAgain() {
-    let answer = readline.question('Would you like to play again? (y or n): ').toLowerCase();
+    let answer = readline.question('Would you like to play another round? (y or n): ').toLowerCase();
 
     while (true) {
       if (['y', 'n'].includes(answer)) break;
@@ -163,23 +172,24 @@ class TTTGame {
   }
 
   playRound() {
-    this.board.display();
-    console.log(`Human: ${this.human.roundsWon}`);
-    console.log(`Computer: ${this.computer.roundsWon}`);
+    this.displayRoundNumberAndBoard();
+    this.displayScore();
 
     while (true) {
       this.humanMoves();
-      if (this.gameOver()) break;
+      if (this.roundOver()) break;
 
       this.computerMoves();
-      if (this.gameOver()) break;
+      if (this.roundOver()) break;
 
-      this.board.displayWithClear();
+      console.clear();
+      this.displayRoundNumberAndBoard();
     }
 
-    this.board.displayWithClear();
-    this.displayResults();
-    console.log('');
+    console.clear();
+    this.displayRoundNumberAndBoard();
+    this.displayRoundResults();
+    this.round += 1;
   }
 
   humanMoves() {
@@ -293,41 +303,76 @@ class TTTGame {
     return choice;
   }
 
-  gameOver() {
-    return this.board.isFull() || this.someoneWon();
+  roundOver() {
+    return this.board.isFull() || this.someoneWonRound();
   }
 
-  someoneWon() {
+  someoneWonRound() {
     return this.isRoundWinner(this.human) || this.isRoundWinner(this.computer);
   }
 
+  someoneWonMatch() {
+    return this.isMatchWinner(this.human) || this.isMatchWinner(this.computer);
+  }
+
   displayWelcomeMessage() {
-    console.log('Welcome to Tic Tac Toe!');
+    console.log(`Welcome to Tic Tac Toe!`);
+    console.log('');
   }
 
   displayGoodbyeMessage() {
-    console.log('');
     console.log('Thanks for playing Tic Tac Toe. Goodbye!');
   }
 
-  displayResults() {
+  displayScore() {
+    console.log('');
+    console.log(`Human: ${this.human.roundsWon}`);
+    console.log(`Computer: ${this.computer.roundsWon}`);
+    console.log('');
+  }
+
+  displayRoundResults() {
     if (this.isRoundWinner(this.human)) {
       this.human.roundsWon += 1;
-      console.log('You won. Congrats!');
-      console.log(`You have won ${this.human.roundsWon} round(s)`);
+      console.log('>> You won the round. Congrats!');
+      this.displayScore();
     } else if (this.isRoundWinner(this.computer)) {
       this.computer.roundsWon += 1;
-      console.log('Computer wins.');
-      console.log(`Computer has won ${this.computer.roundsWon} round(s)`);
+      console.log('>> Computer wins round.');
+      this.displayScore();
     } else {
-      console.log('A tied game. How boring.');
+      console.log('>> A tied game. How boring.');
+      this.displayScore();
     }
+  }
+
+  displayRoundNumber() {
+    console.log(`***Round ${this.round}***`);
+    console.log('');
+  }
+
+  displayRoundNumberAndBoard() {
+    this.displayRoundNumber();
+    this.board.display();
   }
 
   isRoundWinner(player) {
     return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
       return this.board.countMarkersFor(player, row) === 3;
     });
+  }
+
+  isMatchWinner(player) {
+    return player.roundsWon === TTTGame.roundsNeededToWinMatch;
+  }
+
+  displayMatchResults() {
+    if (this.isMatchWinner(this.human)) {
+      console.log('>> You won the match. Congrats!');
+    } else if (this.isMatchWinner(this.computer)) {
+      console.log('>> Computer wins match.');
+    }
+    console.log('');
   }
 }
 
