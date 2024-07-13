@@ -84,6 +84,7 @@ class Board {
 class Player {
   constructor(marker) {
     this.marker = marker;
+    this.roundsWon = 0;
   }
 
   getMarker() {
@@ -131,25 +132,6 @@ class TTTGame {
     this.computer = new Computer();
   }
 
-  /*
-- playGame
-  - welcome player
-
-    - playRound
-      - display board
-      - turn taking, checking for game over etc
-      - display board
-      - display results
-      - ask to play again
-        - if y
-          - clear board
-          - continue to top
-        - if n
-          -break
-
-  - say goodbye
-  */
-
   playGame() {
     console.clear();
     this.displayWelcomeMessage();
@@ -182,6 +164,8 @@ class TTTGame {
 
   playRound() {
     this.board.display();
+    console.log(`Human: ${this.human.roundsWon}`);
+    console.log(`Computer: ${this.computer.roundsWon}`);
 
     while (true) {
       this.humanMoves();
@@ -224,14 +208,14 @@ class TTTGame {
     while (true) {
       if (this.centerSquareAvailable()) return this.chooseCenterSquare();
 
-      let offensiveMove = this.computerOffenseToWin();
-      if (offensiveMove) return offensiveMove;
+      let offensiveWinningMove = this.computerOffenseToWin();
+      if (offensiveWinningMove) return offensiveWinningMove;
 
       let defensiveMove = this.computerDefense();
       if (defensiveMove) return defensiveMove;
 
-      offensiveMove = this.computerOffenseToAdvance();
-      if (offensiveMove) return offensiveMove;
+      let offensiveMoveToAdvance = this.computerOffenseToAdvance();
+      if (offensiveMoveToAdvance) return offensiveMoveToAdvance;
 
       else return this.computerRandomMove();
     }
@@ -314,7 +298,7 @@ class TTTGame {
   }
 
   someoneWon() {
-    return this.isWinner(this.human) || this.isWinner(this.computer);
+    return this.isRoundWinner(this.human) || this.isRoundWinner(this.computer);
   }
 
   displayWelcomeMessage() {
@@ -327,16 +311,20 @@ class TTTGame {
   }
 
   displayResults() {
-    if (this.isWinner(this.human)) {
+    if (this.isRoundWinner(this.human)) {
+      this.human.roundsWon += 1;
       console.log('You won. Congrats!');
-    } else if (this.isWinner(this.computer)) {
+      console.log(`You have won ${this.human.roundsWon} round(s)`);
+    } else if (this.isRoundWinner(this.computer)) {
+      this.computer.roundsWon += 1;
       console.log('Computer wins.');
+      console.log(`Computer has won ${this.computer.roundsWon} round(s)`);
     } else {
       console.log('A tied game. How boring.');
     }
   }
 
-  isWinner(player) {
+  isRoundWinner(player) {
     return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
       return this.board.countMarkersFor(player, row) === 3;
     });
