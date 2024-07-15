@@ -50,12 +50,6 @@ class Board {
     console.log("");
   }
 
-  displayWithClear() {
-    console.clear();
-    console.log('');
-    this.display();
-  }
-
   markSquareAt(key, marker) {
     this.squares[key].setMarker(marker);
   }
@@ -66,6 +60,10 @@ class Board {
 
   isUnusedSquare(key) {
     return this.squares[key].isUnused();
+  }
+
+  isEmpty() {
+    return Object.keys(this.squares).every(key => this.squares[key].isUnused());
   }
 
   isFull() {
@@ -153,7 +151,6 @@ class TTTGame {
 
       this.board = new Board();
       console.clear();
-      console.log('');
     }
 
     this.displayGoodbyeMessage();
@@ -176,7 +173,12 @@ class TTTGame {
   playRound() {
     let currentPlayer = this.firstPlayer;
 
-    this.displayRoundNumberAndBoard();
+    if (this.round === 1 && this.board.isEmpty()) {
+      this.board.display();
+    } else {
+      this.displayRoundNumberAndBoard();
+    }
+
     this.displayScore();
 
     while (true) {
@@ -318,7 +320,7 @@ class TTTGame {
   }
 
   displayWelcomeMessage() {
-    console.log(`Welcome to Tic Tac Toe!`);
+    console.log(`Welcome to Tic Tac Toe! Round ${this.round} starts now.`);
     console.log('');
   }
 
@@ -389,6 +391,3 @@ class TTTGame {
 
 let game = new TTTGame();
 game.playGame();
-
-
-// fix spacing
