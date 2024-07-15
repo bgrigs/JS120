@@ -132,6 +132,7 @@ class TTTGame {
     this.board = new Board();
     this.human = new Human();
     this.computer = new Computer();
+    this.firstPlayer = this.human;
     this.round = 1;
   }
 
@@ -148,6 +149,7 @@ class TTTGame {
       }
 
       if (!this.playAgain()) break;
+      this.firstPlayer = this.togglePlayer(this.firstPlayer);
 
       this.board = new Board();
       console.clear();
@@ -172,18 +174,18 @@ class TTTGame {
   }
 
   playRound() {
+    let currentPlayer = this.firstPlayer;
+
     this.displayRoundNumberAndBoard();
     this.displayScore();
 
     while (true) {
-      this.humanMoves();
-      if (this.roundOver()) break;
-
-      this.computerMoves();
+      this.playerMoves(currentPlayer);
       if (this.roundOver()) break;
 
       console.clear();
       this.displayRoundNumberAndBoard();
+      currentPlayer = this.togglePlayer(currentPlayer);
     }
 
     console.clear();
@@ -374,7 +376,19 @@ class TTTGame {
     }
     console.log('');
   }
+
+  togglePlayer(player) {
+    return player === this.human ? this.computer : this.human;
+  }
+
+  playerMoves(currentPlayer) {
+    if (currentPlayer === this.human) this.humanMoves();
+    else this.computerMoves();
+  }
 }
 
 let game = new TTTGame();
 game.playGame();
+
+
+// fix spacing
