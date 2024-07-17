@@ -320,7 +320,7 @@ class TTTGame {
   }
 
   displayWelcomeMessage() {
-    console.log(`Welcome to Tic Tac Toe! Round ${this.round} starts now.`);
+    console.log(`Welcome to Tic Tac Toe! The first player to win ${TTTGame.roundsNeededToWinMatch} rounds wins the match. Round ${this.round} starts now.`);
     console.log('');
   }
 
