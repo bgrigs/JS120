@@ -154,12 +154,12 @@ class Player extends Participant {
     // this.hand = [];
   }
 
-  // hit() {
+  // stay() {
   //   // STUB
   // }
 
-  stay() {
-    // STUB
+  has21() {
+    return this.handValue === 21;
   }
 
   score() {
@@ -208,7 +208,7 @@ class TwentyOneGame {
     this.dealCards();
     this.showCards();
     this.playerTurn();
-    if (!this.player.busted) {
+    if (!this.player.busted && !this.player.won) {
       this.dealerTurn();
     }
     this.displayResult();
@@ -249,6 +249,11 @@ class TwentyOneGame {
         break;
       }
 
+      if (this.player.has21()) {
+        this.player.won = true;
+        break;
+      }
+
       let move = this.hitOrStay();
       if (move === 'h' || move === 'hit') this.deck.hit(this.player);
       else break;
@@ -263,17 +268,8 @@ class TwentyOneGame {
     while (true) {
       if (['h', 'hit', 's', 'stay'].includes(answer)) break;
 
-      else {
-        console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
-      }
+      else console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
     }
-
-    // if (answer === 'h' || answer === 'hit') {
-    //   this.deck.hit(this.player);
-    //   this.player.updateHandValue();
-    // } else if (answer === 's' || answer === 'stay') {
-    //   this.player.stay();
-    // }
 
     return answer;
   }
