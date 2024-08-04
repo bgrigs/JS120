@@ -165,6 +165,7 @@ class Player extends Participant {
   score() {
     // STUB
   }
+
 }
 
 class Dealer extends Participant {
@@ -177,6 +178,9 @@ class Dealer extends Participant {
     // Score? Hand? Deck of cards?
   }
 
+  hasMinValue() {
+    return this.handValue >= Dealer.HAND_VALUE_MIN;
+  }
 
   score() {
     //STUB
@@ -280,9 +284,7 @@ class TwentyOneGame {
         break;
       }
 
-      if (this.dealer.handValue >= Dealer.HAND_VALUE_MIN) {
-        break;
-      }
+      if (this.dealer.hasMinValue()) break;
 
       this.deck.hit(this.dealer);
       this.showAllCardsAndValues();
@@ -330,7 +332,7 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.start();
 
-// fix bug that shows 0 hand value for dealer if player busts
+// fix bug that shows 0 hand value for dealer if player busts or gets 21
 // add "player/dealer busts" messages
 // if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
 // clear console
