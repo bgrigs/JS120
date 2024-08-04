@@ -122,7 +122,7 @@ class Participant {
     this.handValue = 0;
     this.busted = false;
     this.won = false;
-    this.stayed = false;
+    // this.stayed = false;
     // STUB
     // Score? Hand? Amount of money available?
     // What else goes here? all the redundant behaviors from Player and Dealer?
@@ -130,6 +130,7 @@ class Participant {
 
   updateHandValue() {
     let handValue = 0;
+
     this.hand.forEach(card => {
       if (card.isFaceCard(card.rank)) {
         handValue += 10;
@@ -139,6 +140,7 @@ class Participant {
         handValue += Number(card.rank);
       }
     });
+
     this.handValue = handValue;
   }
 
@@ -153,10 +155,6 @@ class Player extends Participant {
     // this.updateHandValue();
     // this.hand = [];
   }
-
-  // stay() {
-  //   // STUB
-  // }
 
   has21() {
     return this.handValue === 21;
@@ -176,14 +174,6 @@ class Dealer extends Participant {
     // STUB
     // What sort of state does a dealer need?
     // Score? Hand? Deck of cards?
-  }
-
-  // hit() {
-  //   //STUB
-  // }
-
-  stay() {
-    //STUB
   }
 
 
@@ -208,9 +198,15 @@ class TwentyOneGame {
     this.dealCards();
     this.showCards();
     this.playerTurn();
+
     if (!this.player.busted && !this.player.won) {
       this.dealerTurn();
     }
+
+    if (!this.dealer.busted && !this.dealer.won) {
+      this.compareHandValue();
+    }
+
     this.displayResult();
     this.displayGoodByeMessage();
   }
@@ -228,8 +224,7 @@ class TwentyOneGame {
     });
     this.player.updateHandValue();
     console.log(`>> Hand value: ${this.player.handValue}`);
-    console.log('');
-
+    this.displayLineBreak();
     console.log(`Dealer cards:`);
 
     this.dealer.hand.forEach(card => {
@@ -241,7 +236,6 @@ class TwentyOneGame {
     while (true) {
       this.player.updateHandValue();
 
-      console.log(`busted true or false: ${this.player.isBusted()}`);
       if (this.player.isBusted()) {
         this.player.busted = true;
         this.dealer.won = true;
@@ -280,12 +274,10 @@ class TwentyOneGame {
       if (this.dealer.isBusted()) {
         this.dealer.busted = true;
         this.player.won = true;
-        this.showAllCards();
         break;
       }
 
       if (this.dealer.handValue >= 17) {
-        this.showAllCards();
         break;
       }
 
@@ -293,25 +285,46 @@ class TwentyOneGame {
     }
   }
 
-  showAllCards() {
+  showAllCardsAndValues() {
     this.dealer.hand[1].reveal();
     this.showCards();
+    console.log(`>> Hand value: ${this.dealer.handValue}`);
+  }
+
+  compareHandValue() {
+    if (this.player.handValue > this.dealer.handValue ||
+      this.player.handValue === this.dealer.handValue) {
+      this.player.won = true;
+    } else {
+      this.dealer.won = true;
+    }
   }
 
   displayWelcomeMessage() {
     console.log('Welcome to Twenty-One!');
-    console.log('');
+    this.displayLineBreak();
   }
 
   displayGoodByeMessage() {
-    // console.log(`Thank you for playing Twenty-One!`);
+    this.displayLineBreak();
+    console.log(`Thank you for playing Twenty-One!`);
   }
 
   displayResult() {
+    this.displayLineBreak();
+    this.showAllCardsAndValues();
+    this.displayLineBreak();
     let winner = this.player.won ? 'Player' : 'Dealer';
     console.log(`${winner} wins!`);
+  }
+
+  displayLineBreak() {
+    console.log('');
   }
 }
 
 let game = new TwentyOneGame();
 game.start();
+
+// fix bug that shows 0 hand value for dealer if player busts
+// add "player/dealer busts" messages
