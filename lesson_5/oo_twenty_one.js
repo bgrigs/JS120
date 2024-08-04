@@ -64,8 +64,10 @@ const shuffle = require('shuffle-array');
 
 class Card {
   static SUITS = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
-  static  RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10',
+  static RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10',
     'Jack', 'Queen', 'King', 'Ace'];
+  static FACE_VALUE = 10;
+  static ACE_VALUE = 11;
 
   constructor(suit, rank) {
     this.suit = suit;
@@ -117,6 +119,8 @@ class Deck {
 }
 
 class Participant {
+  static TARGET_HAND_VALUE = 21;
+
   constructor() {
     this.hand = [];
     this.handValue = 0;
@@ -133,9 +137,9 @@ class Participant {
 
     this.hand.forEach(card => {
       if (card.isFaceCard(card.rank)) {
-        handValue += 10;
+        handValue += Card.FACE_VALUE;
       } else if (card.isAce(card.rank)) {
-        handValue += 11;
+        handValue += Card.ACE_VALUE;
       } else {
         handValue += Number(card.rank);
       }
@@ -145,19 +149,17 @@ class Participant {
   }
 
   isBusted() {
-    return this.handValue > 21;
+    return this.handValue > Participant.TARGET_HAND_VALUE;
   }
 }
 
 class Player extends Participant {
   constructor() {
     super();
-    // this.updateHandValue();
-    // this.hand = [];
   }
 
-  has21() {
-    return this.handValue === 21;
+  hasTargetHandValue() {
+    return this.handValue === Participant.TARGET_HAND_VALUE;
   }
 
   score() {
@@ -166,11 +168,10 @@ class Player extends Participant {
 }
 
 class Dealer extends Participant {
-  // Very similar to a Player; do we need this?
+  static HAND_VALUE_MIN = 17;
 
   constructor() {
     super();
-    // this.hand = [];
     // STUB
     // What sort of state does a dealer need?
     // Score? Hand? Deck of cards?
@@ -185,8 +186,6 @@ class Dealer extends Participant {
 class TwentyOneGame {
   constructor() {
     // STUB
-    // What sort of state does the game need?
-    // A deck? Two participants?
     this.deck = new Deck();
     this.player = new Player();
     this.dealer = new Dealer();
@@ -242,7 +241,7 @@ class TwentyOneGame {
         break;
       }
 
-      if (this.player.has21()) {
+      if (this.player.hasTargetHandValue()) {
         this.player.won = true;
         break;
       }
@@ -277,7 +276,7 @@ class TwentyOneGame {
         break;
       }
 
-      if (this.dealer.handValue >= 17) {
+      if (this.dealer.handValue >= Dealer.HAND_VALUE_MIN) {
         break;
       }
 
@@ -328,3 +327,6 @@ game.start();
 
 // fix bug that shows 0 hand value for dealer if player busts
 // add "player/dealer busts" messages
+// if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
+// clear console
+// add money + rounds
