@@ -72,6 +72,27 @@ class Card {
     this.rank = rank;
     this.hidden = false;
   }
+
+  toString() {
+    if (this.hidden) return 'Hidden Card';
+    return `${this.rank} of ${this.suit}`;
+  }
+
+  hide() {
+    this.hidden = true;
+  }
+
+  reveal() {
+    this.hidden = false;
+  }
+
+  isFaceCard(card) {
+    return (['Jack', 'Queen', 'King'].includes(this.rank));
+  }
+
+  isAce() {
+    return this.rank === 'Ace';
+  }
 }
 
 class Deck {
@@ -79,7 +100,7 @@ class Deck {
     this.cards = [];
     Card.SUITS.forEach(suit => {
       Card.RANKS.forEach(rank => {
-        this.cards.push(`${rank} of ${suit}`);
+        this.cards.push(new Card(suit, rank));
       });
     });
 
@@ -87,34 +108,57 @@ class Deck {
   }
 
   deal(participant) {
-    console.log(this.cards);
     participant.hand = [this.cards.pop(), this.cards.pop()];
+  }
+
+  hit(participant) {
+    participant.hand.push(this.cards.pop());
   }
 }
 
 class Participant {
   constructor() {
+    this.hand = [];
+    this.handValue = 0;
+    this.busted = false;
+    this.won = false;
+    this.stayed = false;
     // STUB
     // Score? Hand? Amount of money available?
     // What else goes here? all the redundant behaviors from Player and Dealer?
+  }
+
+  updateHandValue() {
+    let handValue = 0;
+    this.hand.forEach(card => {
+      if (card.isFaceCard(card.rank)) {
+        handValue += 10;
+      } else if (card.isAce(card.rank)) {
+        handValue += 11;
+      } else {
+        handValue += Number(card.rank);
+      }
+    });
+    this.handValue = handValue;
+  }
+
+  isBusted() {
+    return this.handValue > 21;
   }
 }
 
 class Player extends Participant {
   constructor() {
     super();
-    this.hand = [];
+    // this.updateHandValue();
+    // this.hand = [];
   }
 
-  hit() {
-    // STUB
-  }
+  // hit() {
+  //   // STUB
+  // }
 
   stay() {
-    // STUB
-  }
-
-  isBusted() {
     // STUB
   }
 
@@ -128,33 +172,22 @@ class Dealer extends Participant {
 
   constructor() {
     super();
-    this.hand = [];
+    // this.hand = [];
     // STUB
     // What sort of state does a dealer need?
     // Score? Hand? Deck of cards?
   }
 
-  hit() {
-    //STUB
-  }
+  // hit() {
+  //   //STUB
+  // }
 
   stay() {
     //STUB
   }
 
-  isBusted() {
-    //STUB
-  }
 
   score() {
-    //STUB
-  }
-
-  hide() {
-    //STUB
-  }
-
-  reveal() {
     //STUB
   }
 }
@@ -175,7 +208,9 @@ class TwentyOneGame {
     this.dealCards();
     this.showCards();
     this.playerTurn();
-    this.dealerTurn();
+    if (!this.player.busted) {
+      this.dealerTurn();
+    }
     this.displayResult();
     this.displayGoodByeMessage();
   }
@@ -183,7 +218,8 @@ class TwentyOneGame {
   dealCards() {
     this.deck.deal(this.player);
     this.deck.deal(this.dealer);
-    console.log(this.player.hand);
+    this.dealer.hand[1].hide();
+    // console.log(this.player.hand);
   }
 
   showCards() {
@@ -191,7 +227,10 @@ class TwentyOneGame {
     this.player.hand.forEach(card => {
       console.log(`** ${card}`);
     });
+    this.player.updateHandValue();
+    console.log(`>> Hand value: ${this.player.handValue}`);
     console.log('');
+
     console.log(`Dealer cards:`);
 
     this.dealer.hand.forEach(card => {
@@ -200,23 +239,60 @@ class TwentyOneGame {
   }
 
   playerTurn() {
+    while (true) {
+      this.player.updateHandValue();
 
+      console.log(`busted true or false: ${this.player.isBusted()}`);
+      if (this.player.isBusted()) {
+        this.player.busted = true;
+        this.dealer.won = true;
+        break;
+      }
+
+      let move = this.hitOrStay();
+      if (move === 'h' || move === 'hit') this.deck.hit(this.player);
+      else break;
+      this.showCards();
+    }
+  }
+
+  hitOrStay() {
+    console.log('Would you like to (h)it or (s)tay?');
+    let answer = readline.prompt().toLowerCase();
+
+    while (true) {
+      if (['h', 'hit', 's', 'stay'].includes(answer)) break;
+
+      else {
+        console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
+      }
+    }
+
+    // if (answer === 'h' || answer === 'hit') {
+    //   this.deck.hit(this.player);
+    //   this.player.updateHandValue();
+    // } else if (answer === 's' || answer === 'stay') {
+    //   this.player.stay();
+    // }
+
+    return answer;
   }
 
   dealerTurn() {
-
   }
 
   displayWelcomeMessage() {
-    console.log('Welcome to Twenty-One');
+    console.log('Welcome to Twenty-One!');
+    console.log('');
   }
 
   displayGoodByeMessage() {
-
+    // console.log(`Thank you for playing Twenty-One!`);
   }
 
   displayResult() {
-
+    let winner = this.player.won ? 'Player' : 'Dealer';
+    console.log(`${winner} wins!`);
   }
 }
 
