@@ -154,12 +154,18 @@ class Participant {
 }
 
 class Player extends Participant {
+  static MOVE_OPTIONS = ['h', 'hit', 's', 'stay'];
+
   constructor() {
     super();
   }
 
   hasTargetHandValue() {
     return this.handValue === Participant.TARGET_HAND_VALUE;
+  }
+
+  hit(move) {
+    return move === 'h' || move === 'hit';
   }
 
   score() {
@@ -251,7 +257,7 @@ class TwentyOneGame {
       }
 
       let move = this.hitOrStay();
-      if (move === 'h' || move === 'hit') this.deck.hit(this.player);
+      if (this.player.hit(move)) this.deck.hit(this.player);
       else break;
       this.showCards();
     }
@@ -263,7 +269,7 @@ class TwentyOneGame {
     let answer = readline.prompt().toLowerCase();
 
     while (true) {
-      if (['h', 'hit', 's', 'stay'].includes(answer)) break;
+      if (Player.MOVE_OPTIONS.includes(answer)) break;
 
       else {
         console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
