@@ -86,7 +86,7 @@ class Card {
     this.hidden = false;
   }
 
-  isFaceCard(card) {
+  isFaceCard() {
     return (['Jack', 'Queen', 'King'].includes(this.rank));
   }
 
@@ -219,7 +219,6 @@ class TwentyOneGame {
     this.deck.deal(this.player);
     this.deck.deal(this.dealer);
     this.dealer.hand[1].hide();
-    // console.log(this.player.hand);
   }
 
   showCards() {
@@ -275,6 +274,28 @@ class TwentyOneGame {
   }
 
   dealerTurn() {
+    while (true) {
+      this.dealer.updateHandValue();
+
+      if (this.dealer.isBusted()) {
+        this.dealer.busted = true;
+        this.player.won = true;
+        this.showAllCards();
+        break;
+      }
+
+      if (this.dealer.handValue >= 17) {
+        this.showAllCards();
+        break;
+      }
+
+      this.deck.hit(this.dealer);
+    }
+  }
+
+  showAllCards() {
+    this.dealer.hand[1].reveal();
+    this.showCards();
   }
 
   displayWelcomeMessage() {
