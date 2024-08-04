@@ -254,13 +254,17 @@ class TwentyOneGame {
   }
 
   hitOrStay() {
+    this.displayLineBreak();
     console.log('Would you like to (h)it or (s)tay?');
     let answer = readline.prompt().toLowerCase();
 
     while (true) {
       if (['h', 'hit', 's', 'stay'].includes(answer)) break;
 
-      else console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
+      else {
+        console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
+        answer = readline.prompt().toLowerCase();
+      }
     }
 
     return answer;
@@ -281,6 +285,7 @@ class TwentyOneGame {
       }
 
       this.deck.hit(this.dealer);
+      this.showAllCardsAndValues();
     }
   }
 
