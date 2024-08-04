@@ -322,10 +322,20 @@ class TwentyOneGame {
     console.log(`Thank you for playing Twenty-One!`);
   }
 
+  displayBusted() {
+    let bustedParticipant;
+
+    if (this.player.busted) bustedParticipant = 'Player';
+    if (this.dealer.busted) bustedParticipant = 'Dealer';
+
+    if (bustedParticipant) console.log(`${bustedParticipant} has busted!`);
+  }
+
   displayResult() {
     this.displayLineBreak();
     this.showAllCardsAndValues();
     this.displayLineBreak();
+    this.displayBusted();
     let winner = this.player.won ? 'Player' : 'Dealer';
     console.log(`${winner} wins!`);
   }
@@ -339,7 +349,6 @@ let game = new TwentyOneGame();
 game.start();
 
 // fix bug that shows 0 hand value for dealer if player busts or gets 21
-// add "player/dealer busts" messages
 // if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
 // clear console
 // add money + rounds
