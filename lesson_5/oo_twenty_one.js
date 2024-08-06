@@ -244,10 +244,12 @@ class TwentyOneGame {
   playerTurn() {
     while (true) {
       this.player.updateHandValue();
+      this.dealer.updateHandValue();
 
       if (this.player.isBusted()) {
         this.player.busted = true;
         this.dealer.won = true;
+        this.dealer.updateHandValue();
         break;
       }
 
@@ -348,7 +350,7 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.start();
 
-// fix bug that shows 0 hand value for dealer if player busts or gets 21
 // if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
 // clear console
 // add money + rounds
+// add names to Participannt class...use super to define the names???
