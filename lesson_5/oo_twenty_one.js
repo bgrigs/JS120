@@ -139,10 +139,7 @@ class Participant {
 
   updateHandValue() {
     this.addHitCardToValue();
-    if (this.isBusted() && this.aceAdjustmentNeeded()) {
-      this.makeAceAdjustment();
-      this.initialAceAdjustmentMade = true;
-    }
+    if (this.isBusted() && this.aceAdjustmentNeeded()) this.makeAceAdjustment();
   }
 
   addHitCardToValue() {
