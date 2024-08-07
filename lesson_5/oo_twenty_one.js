@@ -68,6 +68,7 @@ class Card {
     'Jack', 'Queen', 'King', 'Ace'];
   static FACE_VALUE = 10;
   static ACE_VALUE = 11;
+  static ACE_ADJUSTMENT = 10;
 
   constructor(suit, rank) {
     this.suit = suit;
@@ -126,6 +127,7 @@ class Participant {
     this.handValue = 0;
     this.busted = false;
     this.won = false;
+    this.initialAceAdjustmentMade = false;
     // this.stayed = false;
     // STUB
     // Score? Hand? Amount of money available?
@@ -136,11 +138,6 @@ class Participant {
     this.hand.forEach(card => {
       this.addCardValue(card);
     });
-
-    // if (player && player.isBusted() && player.hasAce()) {
-    //   player.handValue -= 10;
-    //   console.log(`current hand value after ace adjustment: ${player.handValue}`);
-    // }
   }
 
   addCardValue(card) {
@@ -153,9 +150,22 @@ class Participant {
     }
   }
 
+  // when player busts the first time, check if there is an ace and if so, make a 1x adjustment
+  // after that, check if it's an ace or not each time and subtract if needed
+
   addHitCardToValue() {
     let hitCard = this.hand.slice().pop();
     this.addCardValue(hitCard);
+
+    if (this.isBusted() && !this.initialAceAdjustmentMade && this.hasAce()) {
+      this.makeAceAdjustment();
+      this.initialAceAdjustmentMade = true;
+      console.log(`current hand value after ace adjustment: ${this.handValue}`);
+    }
+
+    if (this.isBusted() && hitCard.isAce()) {
+      this.makeAceAdjustment();
+    }
   }
 
   isBusted() {
@@ -164,6 +174,10 @@ class Participant {
 
   hasAce() {
     return this.hand.some(card => card.isAce(card.rank));
+  }
+
+  makeAceAdjustment() {
+    this.handValue -= Card.ACE_ADJUSTMENT;
   }
 }
 
@@ -270,7 +284,6 @@ class TwentyOneGame {
     this.player.hand.forEach(card => {
       console.log(`** ${card}`);
     });
-    // this.player.updateHandValue(this.player);
     console.log(this.player.handValue);
     console.log(`>> Hand value: ${this.player.handValue}`);
     this.displayLineBreak();
