@@ -128,16 +128,22 @@ class Participant {
     this.busted = false;
     this.won = false;
     this.initialAceAdjustmentMade = false;
-    // this.stayed = false;
-    // STUB
-    // Score? Hand? Amount of money available?
-    // What else goes here? all the redundant behaviors from Player and Dealer?
+    // Score? Amount of money available?
   }
 
   getInitialHandValue() {
     this.hand.forEach(card => {
       this.addCardValue(card);
     });
+  }
+
+  updateHandValue() {
+    this.addHitCardToValue();
+    if (this.isBusted()) this.checkAceAdjustment();
+  }
+
+  addHitCardToValue() {
+    this.addCardValue(this.getLastCardInHand());
   }
 
   addCardValue(card) {
@@ -148,11 +154,6 @@ class Participant {
     } else {
       this.handValue += Number(card.rank);
     }
-  }
-
-  addHitCardToValue() {
-    // let hitCard = this.hand.slice().pop();
-    this.addCardValue(this.getLastCardInHand());
   }
 
   isBusted() {
@@ -232,14 +233,12 @@ class Dealer extends Participant {
 
 class TwentyOneGame {
   constructor() {
-    // STUB
     this.deck = new Deck();
     this.player = new Player();
     this.dealer = new Dealer();
   }
 
   start() {
-    // SPIKE
     this.displayWelcomeMessage();
     this.dealCards();
     this.player.getInitialHandValue();
@@ -281,11 +280,26 @@ class TwentyOneGame {
       let move = this.hitOrStay();
       if (this.player.hit(move)) {
         this.deck.hit(this.player);
-        this.player.addHitCardToValue();
-        if (this.player.isBusted()) this.player.checkAceAdjustment();
+        this.player.updateHandValue();
       } else break;
 
       this.showCards();
+    }
+  }
+
+  dealerTurn() {
+    while (true) {
+      if (this.dealer.isBusted()) {
+        this.dealer.busted = true;
+        this.player.won = true;
+        break;
+      }
+
+      if (this.dealer.hasMinValue()) break;
+
+      this.deck.hit(this.dealer);
+      this.dealer.updateHandValue();
+      this.showAllCardsAndValues();
     }
   }
 
@@ -319,23 +333,6 @@ class TwentyOneGame {
     }
 
     return answer;
-  }
-
-  dealerTurn() {
-    while (true) {
-      if (this.dealer.isBusted()) {
-        this.dealer.busted = true;
-        this.player.won = true;
-        break;
-      }
-
-
-      if (this.dealer.hasMinValue()) break;
-
-      this.deck.hit(this.dealer);
-      this.dealer.addHitCardToValue();
-      this.showAllCardsAndValues();
-    }
   }
 
   showAllCardsAndValues() {
@@ -392,7 +389,3 @@ game.start();
 // clear console
 // add money + rounds
 // add names to Participant class...use super to define the names???
-
-
-// if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
-// is the ace adjustment for both player and dealer or only player?
