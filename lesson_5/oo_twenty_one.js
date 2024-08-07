@@ -139,7 +139,10 @@ class Participant {
 
   updateHandValue() {
     this.addHitCardToValue();
-    if (this.isBusted()) this.checkAceAdjustment();
+    if (this.isBusted() && this.aceAdjustmentNeeded()) {
+      this.makeAceAdjustment();
+      this.initialAceAdjustmentMade = true;
+    }
   }
 
   addHitCardToValue() {
@@ -166,24 +169,12 @@ class Participant {
 
   makeAceAdjustment() {
     this.handValue -= Card.ACE_ADJUSTMENT;
+    if (!this.initialAceAdjustmentMade) this.initialAceAdjustmentMade = true;
   }
 
-  checkAceAdjustment() {
-    while (true) {
-      if (!this.initialAceAdjustmentMade && this.hasAce()) {
-        this.makeAceAdjustment();
-        this.initialAceAdjustmentMade = true;
-        console.log(`current hand value after ace adjustment: ${this.handValue}`);
-        break;
-      }
-
-      if (this.getLastCardInHand().isAce()) {
-        this.makeAceAdjustment();
-        break;
-      }
-
-      break;
-    }
+  aceAdjustmentNeeded() {
+    return ((!this.initialAceAdjustmentMade && this.hasAce()) ||
+      this.getLastCardInHand().isAce());
   }
 
   getLastCardInHand() {
