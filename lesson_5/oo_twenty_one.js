@@ -153,9 +153,9 @@ class Participant {
     }
   }
 
-  addHitCardToValue(participant) {
-    let hitCard = participant.hand.slice().pop();
-    participant.addCardValue(hitCard);
+  addHitCardToValue() {
+    let hitCard = this.hand.slice().pop();
+    this.addCardValue(hitCard);
   }
 
   isBusted() {
@@ -258,7 +258,7 @@ class TwentyOneGame {
       let move = this.hitOrStay();
       if (this.player.hit(move)) {
         this.deck.hit(this.player);
-        this.player.addHitCardToValue(this.player);
+        this.player.addHitCardToValue();
       } else break;
 
       this.showCards();
@@ -310,7 +310,7 @@ class TwentyOneGame {
       if (this.dealer.hasMinValue()) break;
 
       this.deck.hit(this.dealer);
-      this.dealer.addHitCardToValue(this.dealer);
+      this.dealer.addHitCardToValue();
       this.showAllCardsAndValues();
     }
   }
