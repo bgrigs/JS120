@@ -132,24 +132,38 @@ class Participant {
     // What else goes here? all the redundant behaviors from Player and Dealer?
   }
 
-  updateHandValue() {
-    let handValue = 0;
-
+  getInitialHandValue() {
     this.hand.forEach(card => {
-      if (card.isFaceCard(card.rank)) {
-        handValue += Card.FACE_VALUE;
-      } else if (card.isAce(card.rank)) {
-        handValue += Card.ACE_VALUE;
-      } else {
-        handValue += Number(card.rank);
-      }
+      this.addCardValue(card);
     });
 
-    this.handValue = handValue;
+    // if (player && player.isBusted() && player.hasAce()) {
+    //   player.handValue -= 10;
+    //   console.log(`current hand value after ace adjustment: ${player.handValue}`);
+    // }
+  }
+
+  addCardValue(card) {
+    if (card.isFaceCard(card.rank)) {
+      this.handValue += Card.FACE_VALUE;
+    } else if (card.isAce(card.rank)) {
+      this.handValue += Card.ACE_VALUE;
+    } else {
+      this.handValue += Number(card.rank);
+    }
+  }
+
+  addHitCardToValue(participant) {
+    let hitCard = participant.hand.slice().pop();
+    participant.addCardValue(hitCard);
   }
 
   isBusted() {
     return this.handValue > Participant.TARGET_HAND_VALUE;
+  }
+
+  hasAce() {
+    return this.hand.some(card => card.isAce(card.rank));
   }
 }
 
@@ -205,6 +219,8 @@ class TwentyOneGame {
     // SPIKE
     this.displayWelcomeMessage();
     this.dealCards();
+    this.player.getInitialHandValue();
+    this.dealer.getInitialHandValue();
     this.showCards();
     this.playerTurn();
 
@@ -226,30 +242,11 @@ class TwentyOneGame {
     this.dealer.hand[1].hide();
   }
 
-  showCards() {
-    console.log(`Player cards:`);
-    this.player.hand.forEach(card => {
-      console.log(`** ${card}`);
-    });
-    this.player.updateHandValue();
-    console.log(`>> Hand value: ${this.player.handValue}`);
-    this.displayLineBreak();
-    console.log(`Dealer cards:`);
-
-    this.dealer.hand.forEach(card => {
-      console.log(`** ${card}`);
-    });
-  }
-
   playerTurn() {
     while (true) {
-      this.player.updateHandValue();
-      this.dealer.updateHandValue();
-
       if (this.player.isBusted()) {
         this.player.busted = true;
         this.dealer.won = true;
-        this.dealer.updateHandValue();
         break;
       }
 
@@ -259,10 +256,29 @@ class TwentyOneGame {
       }
 
       let move = this.hitOrStay();
-      if (this.player.hit(move)) this.deck.hit(this.player);
-      else break;
+      if (this.player.hit(move)) {
+        this.deck.hit(this.player);
+        this.player.addHitCardToValue(this.player);
+      } else break;
+
       this.showCards();
     }
+  }
+
+  showCards() {
+    console.log(`Player cards:`);
+    this.player.hand.forEach(card => {
+      console.log(`** ${card}`);
+    });
+    // this.player.updateHandValue(this.player);
+    console.log(this.player.handValue);
+    console.log(`>> Hand value: ${this.player.handValue}`);
+    this.displayLineBreak();
+    console.log(`Dealer cards:`);
+
+    this.dealer.hand.forEach(card => {
+      console.log(`** ${card}`);
+    });
   }
 
   hitOrStay() {
@@ -284,17 +300,17 @@ class TwentyOneGame {
 
   dealerTurn() {
     while (true) {
-      this.dealer.updateHandValue();
-
       if (this.dealer.isBusted()) {
         this.dealer.busted = true;
         this.player.won = true;
         break;
       }
 
+
       if (this.dealer.hasMinValue()) break;
 
       this.deck.hit(this.dealer);
+      this.dealer.addHitCardToValue(this.dealer);
       this.showAllCardsAndValues();
     }
   }
@@ -350,7 +366,10 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.start();
 
-// if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
 // clear console
 // add money + rounds
-// add names to Participannt class...use super to define the names???
+// add names to Participant class...use super to define the names???
+
+
+// if player (or dealer?) has > 21 and has an ace, subtract 10 from handValue
+// is the ace adjustment for both player and dealer or only player?
