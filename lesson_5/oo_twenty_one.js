@@ -150,22 +150,9 @@ class Participant {
     }
   }
 
-  // when player busts the first time, check if there is an ace and if so, make a 1x adjustment
-  // after that, check if it's an ace or not each time and subtract if needed
-
   addHitCardToValue() {
-    let hitCard = this.hand.slice().pop();
-    this.addCardValue(hitCard);
-
-    if (this.isBusted() && !this.initialAceAdjustmentMade && this.hasAce()) {
-      this.makeAceAdjustment();
-      this.initialAceAdjustmentMade = true;
-      console.log(`current hand value after ace adjustment: ${this.handValue}`);
-    }
-
-    if (this.isBusted() && hitCard.isAce()) {
-      this.makeAceAdjustment();
-    }
+    // let hitCard = this.hand.slice().pop();
+    this.addCardValue(this.getLastCardInHand());
   }
 
   isBusted() {
@@ -178,6 +165,28 @@ class Participant {
 
   makeAceAdjustment() {
     this.handValue -= Card.ACE_ADJUSTMENT;
+  }
+
+  checkAceAdjustment() {
+    while (true) {
+      if (!this.initialAceAdjustmentMade && this.hasAce()) {
+        this.makeAceAdjustment();
+        this.initialAceAdjustmentMade = true;
+        console.log(`current hand value after ace adjustment: ${this.handValue}`);
+        break;
+      }
+
+      if (this.getLastCardInHand().isAce()) {
+        this.makeAceAdjustment();
+        break;
+      }
+
+      break;
+    }
+  }
+
+  getLastCardInHand() {
+    return this.hand.slice().pop();
   }
 }
 
@@ -273,6 +282,7 @@ class TwentyOneGame {
       if (this.player.hit(move)) {
         this.deck.hit(this.player);
         this.player.addHitCardToValue();
+        if (this.player.isBusted()) this.player.checkAceAdjustment();
       } else break;
 
       this.showCards();
