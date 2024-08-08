@@ -124,13 +124,13 @@ class Participant {
 
   constructor() {
     this.hand = [];
-    this.handValue = undefined;
+    this.handValue = null;
     this.busted = false;
     this.won = false;
     // Score? Amount of money available?
   }
 
-  getHandValue() {
+  updateHandValue() {
     this.handValue = 0;
 
     this.hand.forEach(card => this.addCardValue(card));
@@ -161,7 +161,6 @@ class Participant {
 
   makeAceAdjustment() {
     this.handValue -= Card.ACE_ADJUSTMENT;
-    if (!this.initialAceAdjustmentMade) this.initialAceAdjustmentMade = true;
   }
 }
 
@@ -215,8 +214,8 @@ class TwentyOneGame {
   start() {
     this.displayWelcomeMessage();
     this.dealCards();
-    this.player.getHandValue();
-    this.dealer.getHandValue();
+    this.player.updateHandValue();
+    this.dealer.updateHandValue();
     this.showCards();
     this.playerTurn();
 
@@ -254,7 +253,7 @@ class TwentyOneGame {
       let move = this.hitOrStay();
       if (this.player.hit(move)) {
         this.deck.hit(this.player);
-        this.player.getHandValue();
+        this.player.updateHandValue();
       } else break;
 
       this.showCards();
@@ -272,7 +271,7 @@ class TwentyOneGame {
       if (this.dealer.hasMinValue()) break;
 
       this.deck.hit(this.dealer);
-      this.dealer.getHandValue();
+      this.dealer.updateHandValue();
       this.showAllCardsAndValues();
     }
   }
