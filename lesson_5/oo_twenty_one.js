@@ -125,8 +125,7 @@ class Participant {
   constructor() {
     this.hand = [];
     this.handValue = null;
-    this.busted = false;
-    this.won = false;
+    this.won = null;
     // Score? Amount of money available?
   }
 
@@ -153,10 +152,6 @@ class Participant {
 
   isBusted() {
     return this.handValue > Participant.TARGET_HAND_VALUE;
-  }
-
-  hasAce() {
-    return this.hand.some(card => card.isAce(card.rank));
   }
 
   makeAceAdjustment() {
@@ -219,13 +214,9 @@ class TwentyOneGame {
     this.showCards();
     this.playerTurn();
 
-    if (!this.player.busted && !this.player.won) {
-      this.dealerTurn();
-    }
+    if (!this.player.isBusted() && !this.player.won) this.dealerTurn();
 
-    if (!this.dealer.busted && !this.dealer.won) {
-      this.compareHandValue();
-    }
+    if (!this.dealer.isBusted() && !this.dealer.won) this.compareHandValue();
 
     this.displayResult();
     this.displayGoodByeMessage();
@@ -240,7 +231,6 @@ class TwentyOneGame {
   playerTurn() {
     while (true) {
       if (this.player.isBusted()) {
-        this.player.busted = true;
         this.dealer.won = true;
         break;
       }
@@ -263,7 +253,6 @@ class TwentyOneGame {
   dealerTurn() {
     while (true) {
       if (this.dealer.isBusted()) {
-        this.dealer.busted = true;
         this.player.won = true;
         break;
       }
@@ -272,7 +261,6 @@ class TwentyOneGame {
 
       this.deck.hit(this.dealer);
       this.dealer.updateHandValue();
-      this.showAllCardsAndValues();
     }
   }
 
@@ -335,8 +323,8 @@ class TwentyOneGame {
   displayBusted() {
     let bustedParticipant;
 
-    if (this.player.busted) bustedParticipant = 'Player';
-    if (this.dealer.busted) bustedParticipant = 'Dealer';
+    if (this.player.isBusted()) bustedParticipant = 'Player';
+    else if (this.dealer.isBusted()) bustedParticipant = 'Dealer';
 
     if (bustedParticipant) console.log(`${bustedParticipant} has busted!`);
   }
@@ -361,5 +349,3 @@ game.start();
 // clear console
 // add money + rounds
 // add names to Participant class...use super to define the names???
-
-// fix bug that would result in a bust if you get something like 3 Aces and a J
