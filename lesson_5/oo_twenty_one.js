@@ -135,11 +135,13 @@ class Participant {
     this.hand.forEach(card => {
       this.addCardValue(card);
     });
+
+    this.savePotentialBust();
   }
 
   updateHandValue() {
     this.addHitCardToValue();
-    if (this.isBusted() && this.aceAdjustmentNeeded()) this.makeAceAdjustment();
+    this.savePotentialBust();
   }
 
   addHitCardToValue() {
@@ -162,6 +164,10 @@ class Participant {
 
   hasAce() {
     return this.hand.some(card => card.isAce(card.rank));
+  }
+
+  savePotentialBust() {
+    if (this.isBusted() && this.aceAdjustmentNeeded()) this.makeAceAdjustment();
   }
 
   makeAceAdjustment() {
@@ -377,3 +383,5 @@ game.start();
 // clear console
 // add money + rounds
 // add names to Participant class...use super to define the names???
+
+// fix bug that would result in a bust if you get something like 3 Aces and a J
