@@ -124,28 +124,21 @@ class Participant {
 
   constructor() {
     this.hand = [];
-    this.handValue = 0;
+    this.handValue = undefined;
     this.busted = false;
     this.won = false;
-    this.initialAceAdjustmentMade = false;
     // Score? Amount of money available?
   }
 
-  getInitialHandValue() {
-    this.hand.forEach(card => {
-      this.addCardValue(card);
-    });
+  getHandValue() {
+    this.handValue = 0;
 
-    this.savePotentialBust();
-  }
+    this.hand.forEach(card => this.addCardValue(card));
 
-  updateHandValue() {
-    this.addHitCardToValue();
-    this.savePotentialBust();
-  }
-
-  addHitCardToValue() {
-    this.addCardValue(this.getLastCardInHand());
+    this.hand.filter(card => card.isAce())
+      .forEach(_ => {
+        if (this.isBusted()) this.makeAceAdjustment();
+      });
   }
 
   addCardValue(card) {
@@ -166,22 +159,9 @@ class Participant {
     return this.hand.some(card => card.isAce(card.rank));
   }
 
-  savePotentialBust() {
-    if (this.isBusted() && this.aceAdjustmentNeeded()) this.makeAceAdjustment();
-  }
-
   makeAceAdjustment() {
     this.handValue -= Card.ACE_ADJUSTMENT;
     if (!this.initialAceAdjustmentMade) this.initialAceAdjustmentMade = true;
-  }
-
-  aceAdjustmentNeeded() {
-    return ((!this.initialAceAdjustmentMade && this.hasAce()) ||
-      this.getLastCardInHand().isAce());
-  }
-
-  getLastCardInHand() {
-    return this.hand.slice().pop();
   }
 }
 
@@ -235,8 +215,8 @@ class TwentyOneGame {
   start() {
     this.displayWelcomeMessage();
     this.dealCards();
-    this.player.getInitialHandValue();
-    this.dealer.getInitialHandValue();
+    this.player.getHandValue();
+    this.dealer.getHandValue();
     this.showCards();
     this.playerTurn();
 
@@ -274,7 +254,7 @@ class TwentyOneGame {
       let move = this.hitOrStay();
       if (this.player.hit(move)) {
         this.deck.hit(this.player);
-        this.player.updateHandValue();
+        this.player.getHandValue();
       } else break;
 
       this.showCards();
@@ -292,7 +272,7 @@ class TwentyOneGame {
       if (this.dealer.hasMinValue()) break;
 
       this.deck.hit(this.dealer);
-      this.dealer.updateHandValue();
+      this.dealer.getHandValue();
       this.showAllCardsAndValues();
     }
   }
@@ -302,11 +282,10 @@ class TwentyOneGame {
     this.player.hand.forEach(card => {
       console.log(`** ${card}`);
     });
-    console.log(this.player.handValue);
     console.log(`>> Hand value: ${this.player.handValue}`);
     this.displayLineBreak();
-    console.log(`Dealer cards:`);
 
+    console.log(`Dealer cards:`);
     this.dealer.hand.forEach(card => {
       console.log(`** ${card}`);
     });
