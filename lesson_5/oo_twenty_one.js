@@ -68,7 +68,7 @@ class Card {
     'Jack', 'Queen', 'King', 'Ace'];
   static FACE_VALUE = 10;
   static ACE_VALUE = 11;
-  static ACE_ADJUSTMENT = 10;
+  static ACE_ADJUSTMENT = -10;
 
   constructor(suit, rank) {
     this.suit = suit;
@@ -155,7 +155,7 @@ class Participant {
   }
 
   makeAceAdjustment() {
-    this.handValue -= Card.ACE_ADJUSTMENT;
+    this.handValue += Card.ACE_ADJUSTMENT;
   }
 }
 
