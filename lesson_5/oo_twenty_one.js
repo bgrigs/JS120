@@ -267,6 +267,7 @@ class TwentyOneGame {
         console.clear();
         break;
       } else {
+        console.clear();
         console.log(`Invalid answer. Please enter 'c' to continue or 'q' to quit`);
         answer = readline.prompt().toLowerCase();
       }
@@ -357,6 +358,7 @@ class TwentyOneGame {
         console.clear();
         break;
       } else {
+        console.clear();
         console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
         answer = readline.prompt().toLowerCase();
       }
@@ -407,7 +409,7 @@ class TwentyOneGame {
   }
 
   displayResult() {
-    this.displayLineBreak();
+    console.clear();
     this.showAllCardsAndValues();
     this.displayLineBreak();
     this.displayBusted();
@@ -425,6 +427,4 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.play();
 
-// fix spacing issues
-// add broke/rich result to goodbye message
 // sometimes $2 is being added to the player in one round...why?
