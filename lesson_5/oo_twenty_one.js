@@ -168,6 +168,7 @@ class Participant {
 
 class Player extends Participant {
   static MOVE_OPTIONS = ['h', 'hit', 's', 'stay'];
+  static PLAY_AGAIN_OPTIONS = ['c', 'continue', 'q', 'quit'];
   static MONEY_TO_START = 5;
   static RICH = 10;
   static BROKE = 0;
@@ -186,10 +187,6 @@ class Player extends Participant {
     return move === 'h' || move === 'hit';
   }
 
-  score() {
-    // STUB
-  }
-
   getMoney() {
     this.money += Player.AMOUNT_BET;
   }
@@ -205,6 +202,10 @@ class Player extends Participant {
   isRich() {
     return this.money === Player.RICH;
   }
+
+  quit(answer) {
+    return answer === 'q' || answer === 'quit';
+  }
 }
 
 
@@ -213,17 +214,10 @@ class Dealer extends Participant {
 
   constructor() {
     super();
-    // STUB
-    // What sort of state does a dealer need?
-    // Score? Hand? Deck of cards?
   }
 
   hasMinValue() {
     return this.handValue >= Dealer.HAND_VALUE_MIN;
-  }
-
-  score() {
-    //STUB
   }
 }
 
@@ -238,6 +232,7 @@ class TwentyOneGame {
     this.displayWelcomeMessage();
 
     while (true) {
+      if (this.checkExitGame()) break;
       this.dealCards();
       this.player.updateHandValue();
       this.dealer.updateHandValue();
@@ -249,11 +244,36 @@ class TwentyOneGame {
       if (!this.dealer.isBusted() && !this.dealer.won) this.compareHandValue();
 
       this.displayResult();
+
       if (this.player.isBroke() || this.player.isRich()) break;
+
       this.resetGame();
     }
 
     this.displayGoodByeMessage();
+  }
+
+  checkExitGame() {
+    let answer = this.continueOrQuit();
+    return this.player.quit(answer);
+  }
+
+  continueOrQuit() {
+    this.displayLineBreak();
+    console.log(`Enter 'c' to continue and 'q' to quit the game`);
+    let answer = readline.prompt().toLowerCase();
+
+    while (true) {
+      if (Player.PLAY_AGAIN_OPTIONS.includes(answer)) {
+        console.clear();
+        break;
+      } else {
+        console.log(`Invalid answer. Please enter 'c' to continue or 'q' to quit`);
+        answer = readline.prompt().toLowerCase();
+      }
+    }
+
+    return answer;
   }
 
   resetGame() {
@@ -403,3 +423,4 @@ let game = new TwentyOneGame();
 game.play();
 
 // clear console
+// don't ask player to c or q if they've reached $10 or $0
