@@ -100,6 +100,10 @@ class Card {
 
 class Deck {
   constructor() {
+    this.reset();
+  }
+
+  reset() {
     this.cards = [];
     Card.SUITS.forEach(suit => {
       Card.RANKS.forEach(rank => {
@@ -123,10 +127,13 @@ class Participant {
   static TARGET_HAND_VALUE = 21;
 
   constructor() {
+    this.reset();
+  }
+
+  reset() {
     this.hand = [];
     this.handValue = null;
     this.won = null;
-    // Score? Amount of money available?
   }
 
   updateHandValue() {
@@ -161,9 +168,14 @@ class Participant {
 
 class Player extends Participant {
   static MOVE_OPTIONS = ['h', 'hit', 's', 'stay'];
+  static MONEY_TO_START = 5;
+  static RICH = 10;
+  static BROKE = 0;
+  static AMOUNT_BET = 1;
 
   constructor() {
     super();
+    this.money = Player.MONEY_TO_START;
   }
 
   hasTargetHandValue() {
@@ -178,7 +190,23 @@ class Player extends Participant {
     // STUB
   }
 
+  getMoney() {
+    this.money += Player.AMOUNT_BET;
+  }
+
+  loseMoney() {
+    this.money -= Player.AMOUNT_BET;
+  }
+
+  isBroke() {
+    return this.money === Player.BROKE;
+  }
+
+  isRich() {
+    return this.money === Player.RICH;
+  }
 }
+
 
 class Dealer extends Participant {
   static HAND_VALUE_MIN = 17;
@@ -206,20 +234,32 @@ class TwentyOneGame {
     this.dealer = new Dealer();
   }
 
-  start() {
+  play() {
     this.displayWelcomeMessage();
-    this.dealCards();
-    this.player.updateHandValue();
-    this.dealer.updateHandValue();
-    this.showCards();
-    this.playerTurn();
 
-    if (!this.player.isBusted() && !this.player.won) this.dealerTurn();
+    while (true) {
+      this.dealCards();
+      this.player.updateHandValue();
+      this.dealer.updateHandValue();
+      this.showCards();
+      this.playerTurn();
 
-    if (!this.dealer.isBusted() && !this.dealer.won) this.compareHandValue();
+      if (!this.player.isBusted() && !this.player.won) this.dealerTurn();
 
-    this.displayResult();
+      if (!this.dealer.isBusted() && !this.dealer.won) this.compareHandValue();
+
+      this.displayResult();
+      if (this.player.isBroke() || this.player.isRich()) break;
+      this.resetGame();
+    }
+
     this.displayGoodByeMessage();
+  }
+
+  resetGame() {
+    this.deck.reset();
+    this.player.reset();
+    this.dealer.reset();
   }
 
   dealCards() {
@@ -231,12 +271,12 @@ class TwentyOneGame {
   playerTurn() {
     while (true) {
       if (this.player.isBusted()) {
-        this.dealer.won = true;
+        this.dealerWinsRound();
         break;
       }
 
       if (this.player.hasTargetHandValue()) {
-        this.player.won = true;
+        this.playerWinsRound();
         break;
       }
 
@@ -253,7 +293,7 @@ class TwentyOneGame {
   dealerTurn() {
     while (true) {
       if (this.dealer.isBusted()) {
-        this.player.won = true;
+        this.playerWinsRound();
         break;
       }
 
@@ -262,6 +302,16 @@ class TwentyOneGame {
       this.deck.hit(this.dealer);
       this.dealer.updateHandValue();
     }
+  }
+
+  playerWinsRound() {
+    this.player.won = true;
+    this.player.getMoney();
+  }
+
+  dealerWinsRound() {
+    this.dealer.won = true;
+    this.player.loseMoney();
   }
 
   showCards() {
@@ -284,9 +334,10 @@ class TwentyOneGame {
     let answer = readline.prompt().toLowerCase();
 
     while (true) {
-      if (Player.MOVE_OPTIONS.includes(answer)) break;
-
-      else {
+      if (Player.MOVE_OPTIONS.includes(answer)) {
+        console.clear();
+        break;
+      } else {
         console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
         answer = readline.prompt().toLowerCase();
       }
@@ -304,14 +355,17 @@ class TwentyOneGame {
   compareHandValue() {
     if (this.player.handValue > this.dealer.handValue ||
       this.player.handValue === this.dealer.handValue) {
-      this.player.won = true;
+      this.playerWinsRound();
     } else {
-      this.dealer.won = true;
+      this.dealerWinsRound();
     }
   }
 
   displayWelcomeMessage() {
+    console.clear();
     console.log('Welcome to Twenty-One!');
+    console.log(`You have $${Player.MONEY_TO_START} to start and each round requires a bet of $${Player.AMOUNT_BET}.`);
+    console.log(`Play until you are broke or until you have $${Player.RICH}.`);
     this.displayLineBreak();
   }
 
@@ -336,6 +390,8 @@ class TwentyOneGame {
     this.displayBusted();
     let winner = this.player.won ? 'Player' : 'Dealer';
     console.log(`${winner} wins!`);
+    console.log(`Player balance: $${this.player.money}`);
+    this.displayLineBreak();
   }
 
   displayLineBreak() {
@@ -344,8 +400,6 @@ class TwentyOneGame {
 }
 
 let game = new TwentyOneGame();
-game.start();
+game.play();
 
 // clear console
-// add money + rounds
-// add names to Participant class...use super to define the names???
