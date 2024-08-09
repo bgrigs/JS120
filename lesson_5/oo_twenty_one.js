@@ -170,7 +170,7 @@ class Player extends Participant {
   static MOVE_OPTIONS = ['h', 'hit', 's', 'stay'];
   static PLAY_AGAIN_OPTIONS = ['c', 'continue', 'q', 'quit'];
   static MONEY_TO_START = 5;
-  static RICH = 10;
+  static RICH = 6;
   static BROKE = 0;
   static AMOUNT_BET = 1;
 
@@ -259,7 +259,6 @@ class TwentyOneGame {
   }
 
   continueOrQuit() {
-    this.displayLineBreak();
     console.log(`Enter 'c' to continue and 'q' to quit the game`);
     let answer = readline.prompt().toLowerCase();
 
@@ -390,7 +389,11 @@ class TwentyOneGame {
   }
 
   displayGoodByeMessage() {
-    this.displayLineBreak();
+    if (this.player.isBroke()) {
+      console.log(`You don't have any money left. Time to call it quits.`);
+    } else if (this.player.isRich()) {
+      console.log(`You're rich! Time to cash out.`);
+    }
     console.log(`Thank you for playing Twenty-One!`);
   }
 
@@ -422,5 +425,6 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.play();
 
-// clear console
-// don't ask player to c or q if they've reached $10 or $0
+// fix spacing issues
+// add broke/rich result to goodbye message
+// sometimes $2 is being added to the player in one round...why?
