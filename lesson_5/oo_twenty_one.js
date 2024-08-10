@@ -277,9 +277,7 @@ class TwentyOneGame {
   }
 
   resetGame() {
-    this.deck.reset();
-    this.player.reset();
-    this.dealer.reset();
+    [this.deck, this.player, this.dealer].forEach(obj => obj.reset());
   }
 
   dealCards() {
@@ -428,3 +426,4 @@ let game = new TwentyOneGame();
 game.play();
 
 // sometimes $2 is being added to the player in one round...why?
+// change RICH back to 10 after done with testing
