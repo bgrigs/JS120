@@ -226,6 +226,7 @@ class TwentyOneGame {
     this.deck = new Deck();
     this.player = new Player();
     this.dealer = new Dealer();
+    this.participants = [this.player, this.dealer];
   }
 
   play() {
@@ -233,9 +234,9 @@ class TwentyOneGame {
 
     while (true) {
       if (this.checkExitGame()) break;
+
       this.dealCards();
-      this.player.updateHandValue();
-      this.dealer.updateHandValue();
+      this.participants.forEach(participant => participant.updateHandValue());
       this.showCards();
       this.playerTurn();
 
@@ -278,12 +279,11 @@ class TwentyOneGame {
   }
 
   resetGame() {
-    [this.deck, this.player, this.dealer].forEach(obj => obj.reset());
+    [this.participants, this.deck].flat().forEach(obj => obj.reset());
   }
 
   dealCards() {
-    this.deck.deal(this.player);
-    this.deck.deal(this.dealer);
+    this.participants.forEach(participant => this.deck.deal(participant));
     this.dealer.hand[1].hide();
   }
 
@@ -428,3 +428,7 @@ class TwentyOneGame {
 
 let game = new TwentyOneGame();
 game.play();
+
+// refactor showCards
+// add a method that changes the player/deaer state to won?
+// add a method that shows handValue
