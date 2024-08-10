@@ -170,7 +170,7 @@ class Player extends Participant {
   static MOVE_OPTIONS = ['h', 'hit', 's', 'stay'];
   static PLAY_AGAIN_OPTIONS = ['c', 'continue', 'q', 'quit'];
   static MONEY_TO_START = 5;
-  static RICH = 6;
+  static RICH = 10;
   static BROKE = 0;
   static AMOUNT_BET = 1;
 
@@ -241,7 +241,8 @@ class TwentyOneGame {
 
       if (!this.player.isBusted() && !this.player.won) this.dealerTurn();
 
-      if (!this.dealer.isBusted() && !this.dealer.won) this.compareHandValue();
+      if (!this.dealer.isBusted() && !this.dealer.won
+        && !this.player.won) this.compareHandValue();
 
       this.displayResult();
 
@@ -357,6 +358,8 @@ class TwentyOneGame {
         break;
       } else {
         console.clear();
+        this.showCards();
+        this.displayLineBreak();
         console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
         answer = readline.prompt().toLowerCase();
       }
@@ -383,7 +386,8 @@ class TwentyOneGame {
   displayWelcomeMessage() {
     console.clear();
     console.log('Welcome to Twenty-One!');
-    console.log(`You have $${Player.MONEY_TO_START} to start and each round requires a bet of $${Player.AMOUNT_BET}.`);
+    console.log(`You have $${Player.MONEY_TO_START} to start.`);
+    console.log(`Each round you will win or lose $${Player.AMOUNT_BET}.`);
     console.log(`Play until you are broke or until you have $${Player.RICH}.`);
     this.displayLineBreak();
   }
@@ -424,6 +428,3 @@ class TwentyOneGame {
 
 let game = new TwentyOneGame();
 game.play();
-
-// sometimes $2 is being added to the player in one round...why?
-// change RICH back to 10 after done with testing
