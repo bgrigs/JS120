@@ -65,8 +65,9 @@ class Deck {
 class Participant {
   static TARGET_HAND_VALUE = 21;
 
-  constructor() {
+  constructor(name) {
     this.reset();
+    this.name = name;
   }
 
   reset() {
@@ -114,7 +115,7 @@ class Player extends Participant {
   static AMOUNT_BET = 1;
 
   constructor() {
-    super();
+    super('Player');
     this.money = Player.MONEY_TO_START;
   }
 
@@ -152,7 +153,7 @@ class Dealer extends Participant {
   static HAND_VALUE_MIN = 17;
 
   constructor() {
-    super();
+    super('Dealer');
   }
 
   hasMinValue() {
@@ -273,14 +274,14 @@ class TwentyOneGame {
   }
 
   showCardsAndPlayerHandValue() {
-    this.showCards('Player', this.player);
+    this.showCards(this.player);
     this.showHandValue(this.player);
     this.displayLineBreak();
-    this.showCards('Dealer', this.dealer);
+    this.showCards(this.dealer);
   }
 
-  showCards(name, participant) {
-    console.log(`${name} cards:`);
+  showCards(participant) {
+    console.log(`${participant.name} cards:`);
     participant.hand.forEach(card => console.log(`** ${card}`));
   }
 
@@ -345,8 +346,8 @@ class TwentyOneGame {
   displayBusted() {
     let bustedParticipant;
 
-    if (this.player.isBusted()) bustedParticipant = 'Player';
-    else if (this.dealer.isBusted()) bustedParticipant = 'Dealer';
+    if (this.player.isBusted()) bustedParticipant = this.player.name;
+    else if (this.dealer.isBusted()) bustedParticipant = this.dealer.name;
 
     if (bustedParticipant) console.log(`${bustedParticipant} has busted!`);
   }
@@ -356,9 +357,9 @@ class TwentyOneGame {
     this.showAllCardsAndHandValues();
     this.displayLineBreak();
     this.displayBusted();
-    let winner = this.player.won ? 'Player' : 'Dealer';
+    let winner = this.player.won ? this.player.name : this.dealer.name;
     console.log(`${winner} wins!`);
-    console.log(`Player balance: $${this.player.money}`);
+    console.log(`${this.player.name} balance: $${this.player.money}`);
     this.displayLineBreak();
   }
 
@@ -371,3 +372,4 @@ let game = new TwentyOneGame();
 game.play();
 
 // add a method that changes the player/dealer state to won?
+// move hit/stay and continue/quit options to Twenty One class 
