@@ -1,64 +1,3 @@
-/*
-Nouns: game, dealer, participant, player, points, game, deck, 4 suits, 13 ranks,
-  turn,
-Verbs: start, deal, receive, hide, see, takes turn, hit, stay, busts,
-  (delear) reveals, determine results
-
-Game states: win, lose, tie. bust, however, can be a state for each participant
-
-Game (n)
-  -start (v)
-  - determine results (v)
-  - win (v)
-  - lose (v)
-
-Card (n)
-  - suits (n)
-  - rank (n)
-
-Deck (n)
-  - deal (should it be here or in Dealer?)
-
-Participant (n)
-  - hit (v)
-  - stay (v)
-  - takes turn (v)
-  - busts (v, state)
-  - points (n)
-
-  - player (n)
-
-  - dealer(n)
-    - deals(v) should this be here or in the deck?
-    - hide(v)
-    - reveals(v)
-
-- Welcome the Player
-
-- Each time the player has a chance to hit or stay
-  - display dealer's hand (one card is hidden)
-  - display player's hand + point total
-
-- Dealer's turn (occurs after player stays)
-  - dealer doesn't play if the player busts
-  - display the dealer's hand, including the hidden card, + report point total.
-  - redisplay the dealer's hand and point total and each time he hits.
-  - display the results when the dealer stays.
-
-- After a game is over, ask the player if they want to play again
-
-- When the program starts, give the player 5 dollars with which to bet.
-  - Deduct 1 dollar each time she loses, and add 1 dollar each time she wins.
-  - The program should quit when
-    - she is broke (0 dollars) or
-    - rich (has a total of 10 dollars).
-
-- Be prepared to run out of cards.
-  - You can either create a new deck for each game,
-  - or keep track of how many cards remain and create a new deck as needed.
-*/
-
-
 const readline = require('readline-sync');
 const shuffle = require('shuffle-array');
 
@@ -143,7 +82,7 @@ class Participant {
 
     this.hand.filter(card => card.isAce())
       .forEach(_ => {
-        if (this.isBusted()) this.makeAceAdjustment();
+        if (this.isBusted()) this.receiveAceAdjustment();
       });
   }
 
@@ -161,7 +100,7 @@ class Participant {
     return this.handValue > Participant.TARGET_HAND_VALUE;
   }
 
-  makeAceAdjustment() {
+  receiveAceAdjustment() {
     this.handValue += Card.ACE_ADJUSTMENT;
   }
 }
@@ -237,7 +176,7 @@ class TwentyOneGame {
 
       this.dealCards();
       this.participants.forEach(participant => participant.updateHandValue());
-      this.showCards();
+      this.showCardsAndPlayerHandValue();
       this.playerTurn();
 
       if (!this.player.isBusted() && !this.player.won) this.dealerTurn();
@@ -305,7 +244,7 @@ class TwentyOneGame {
         this.player.updateHandValue();
       } else break;
 
-      this.showCards();
+      this.showCardsAndPlayerHandValue();
     }
   }
 
@@ -333,18 +272,20 @@ class TwentyOneGame {
     this.player.loseMoney();
   }
 
-  showCards() {
-    console.log(`Player cards:`);
-    this.player.hand.forEach(card => {
-      console.log(`** ${card}`);
-    });
-    console.log(`>> Hand value: ${this.player.handValue}`);
+  showCardsAndPlayerHandValue() {
+    this.showCards('Player', this.player);
+    this.showHandValue(this.player);
     this.displayLineBreak();
+    this.showCards('Dealer', this.dealer);
+  }
 
-    console.log(`Dealer cards:`);
-    this.dealer.hand.forEach(card => {
-      console.log(`** ${card}`);
-    });
+  showCards(name, participant) {
+    console.log(`${name} cards:`);
+    participant.hand.forEach(card => console.log(`** ${card}`));
+  }
+
+  showHandValue(participant) {
+    console.log(`>> Hand value: ${participant.handValue}`);
   }
 
   hitOrStay() {
@@ -358,7 +299,7 @@ class TwentyOneGame {
         break;
       } else {
         console.clear();
-        this.showCards();
+        this.showCardsAndPlayerHandValue();
         this.displayLineBreak();
         console.log(`Invalid answer. Please enter 'h' to hit or 's' to stay`);
         answer = readline.prompt().toLowerCase();
@@ -368,10 +309,10 @@ class TwentyOneGame {
     return answer;
   }
 
-  showAllCardsAndValues() {
+  showAllCardsAndHandValues() {
+    this.showCardsAndPlayerHandValue();
     this.dealer.hand[1].reveal();
-    this.showCards();
-    console.log(`>> Hand value: ${this.dealer.handValue}`);
+    this.showHandValue(this.dealer);
   }
 
   compareHandValue() {
@@ -412,7 +353,7 @@ class TwentyOneGame {
 
   displayResult() {
     console.clear();
-    this.showAllCardsAndValues();
+    this.showAllCardsAndHandValues();
     this.displayLineBreak();
     this.displayBusted();
     let winner = this.player.won ? 'Player' : 'Dealer';
@@ -429,6 +370,4 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.play();
 
-// refactor showCards
-// add a method that changes the player/deaer state to won?
-// add a method that shows handValue
+// add a method that changes the player/dealer state to won?
