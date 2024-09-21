@@ -371,5 +371,5 @@ class TwentyOneGame {
 let game = new TwentyOneGame();
 game.play();
 
-// add a method that changes the player/dealer state to won?
-// move hit/stay and continue/quit options to Twenty One class 
+// write a method that changes the won value to true
+// move hit/stay and continue/quit options to Twenty One class
